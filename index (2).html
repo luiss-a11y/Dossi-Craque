@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Craque do Dia — descubra o jogador misterioso. Um novo desafio a cada dia.">
+<meta name="theme-color" content="#0c0a14">
+<title>Craque do Dia ⚽</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0a14;--panel:#14111f;--panel2:#1c1830;--ink:#eceaf5;--muted:#8a85a8;--stamp:#e23b5a;--gold:#e8c547;--green:#3fb56a;--green-dim:#1e5536;--border:#2a2440;--border-lite:#382f54;--line:#211c33;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Roboto Mono',monospace;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:28px 28px;opacity:.4;mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);}
+#app{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:18px 16px 40px;min-height:100dvh;}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--border-lite);padding-bottom:12px;margin-bottom:18px;}
+.brand{font-family:'Oswald',sans-serif;line-height:.92;}
+.brand .k{font-size:13px;letter-spacing:6px;color:var(--muted);font-weight:500;}
+.brand .t{font-size:32px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.brand .t b{color:var(--gold);}
+.tools{display:flex;gap:6px;}
+.tool{width:34px;height:34px;border:1px solid var(--border-lite);background:var(--panel);border-radius:4px;color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.tool:active{transform:translateY(1px);}
+.case{text-align:right;font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:6px;}
+.case .num{font-family:'Oswald',sans-serif;font-size:18px;color:var(--ink);font-weight:600;}
+.dossier{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:16px;position:relative;}
+.dossier::after{content:"CONFIDENCIAL";position:absolute;top:14px;right:-8px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;font-weight:700;color:var(--stamp);border:2px solid var(--stamp);padding:2px 8px;border-radius:3px;transform:rotate(6deg);opacity:.85;}
+.dossier-head{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+.silho{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.silho .badge{width:64px;height:64px;flex-shrink:0;border-radius:50%;background:var(--panel2);border:2px dashed var(--border-lite);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.silho .badge .silhouette{position:absolute;inset:0;width:100%;height:100%;}
+.silho .badge .sil-fill{fill:#4a3f73;transition:fill .4s ease;}
+.silho .badge .badge-q{position:relative;z-index:1;font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:var(--gold);opacity:.92;}
+.silho .badge.solved{border-style:solid;border-color:var(--green);}
+.silho .badge.solved .sil-fill{fill:var(--green);}
+.silho .badge.solved .badge-q{display:none;}
+.silho .meta{font-size:12px;color:var(--muted);line-height:1.6;}
+.silho .meta b{color:var(--ink);font-weight:500;}
+.clue-list{display:flex;flex-direction:column;gap:8px;}
+.clue{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border-left:3px solid var(--border-lite);border-radius:3px;padding:10px 12px;}
+.clue.revealed{border-left-color:var(--gold);animation:reveal .45s ease;}
+@keyframes reveal{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+.clue .n{font-family:'Oswald',sans-serif;font-size:13px;color:var(--muted);font-weight:600;min-width:18px;}
+.clue .label{font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.clue .val{font-size:13px;color:var(--ink);margin-top:2px;line-height:1.4;}
+.clue.locked .val{color:var(--muted);letter-spacing:3px;}
+.guess-area{margin-top:18px;}
+.guess-row{display:flex;gap:8px;position:relative;}
+#guess{flex:1;background:var(--panel);border:1px solid var(--border-lite);border-radius:4px;color:var(--ink);font-family:'Roboto Mono',monospace;font-size:15px;padding:13px 14px;outline:none;}
+#guess:focus{border-color:var(--gold);}
+#guess::placeholder{color:var(--muted);}
+#go{background:var(--gold);color:#1a1606;border:none;border-radius:4px;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;padding:0 20px;cursor:pointer;text-transform:uppercase;}
+#go:active{transform:translateY(1px);}
+#suggest{position:absolute;top:52px;left:0;right:0;z-index:5;background:var(--panel2);border:1px solid var(--border-lite);border-radius:4px;max-height:220px;overflow-y:auto;display:none;}
+#suggest.show{display:block;}
+.sug{padding:11px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--border);}
+.sug:last-child{border-bottom:none;}
+.sug:hover,.sug.active{background:var(--gold);color:#1a1606;}
+.attempts{margin-top:16px;display:flex;flex-direction:column;gap:6px;}
+.attempt{display:flex;flex-direction:column;gap:5px;font-size:13px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:9px 12px;}
+.attempt .att-top{display:flex;align-items:center;gap:10px;}
+.attempt .mark{font-size:15px;}
+.attempt .gname{flex:1;}
+.attempt .att-prox{font-size:11px;letter-spacing:.3px;padding-left:25px;line-height:1.5;}
+.attempt .px-same{color:var(--green);}
+.attempt .px-diff{color:#c97a8a;}
+.attempt .px-sep{color:var(--muted);}
+.prox-legend{font-size:10px;color:var(--muted);letter-spacing:.3px;margin-top:12px;text-align:center;line-height:1.5;}
+.attempt.wrong{color:var(--muted);}
+.attempt.right{border-color:var(--green);color:var(--ink);}
+.tries-left{text-align:center;font-size:11px;letter-spacing:1px;color:var(--muted);margin-top:12px;text-transform:uppercase;}
+.bonus-area{text-align:center;margin-top:14px;}
+#bonus-btn{background:var(--panel2);color:var(--gold);border:1px solid var(--gold);border-radius:4px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.5px;padding:9px 16px;cursor:pointer;}
+#bonus-btn:active{transform:translateY(1px);}
+.bonus-note{font-size:12px;color:var(--gold);margin-top:10px;letter-spacing:1px;}
+.bonus-note b{font-size:18px;font-family:'Oswald',sans-serif;}
+#result{display:none;text-align:center;margin-top:18px;position:relative;}
+#result.show-anim{animation:resultIn .5s ease;}
+@keyframes resultIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+#result .grid{font-size:20px;letter-spacing:4px;margin:14px 0;animation:gridPop .5s ease .15s both;}
+@keyframes gridPop{0%{transform:scale(.7);opacity:0;}70%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+#confetti{position:absolute;top:0;left:0;right:0;height:0;pointer-events:none;overflow:visible;z-index:5;}
+.confetti-piece{position:absolute;width:8px;height:8px;top:0;opacity:0;will-change:transform;}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-10px) rotate(0deg);}100%{opacity:0;transform:translateY(220px) rotate(540deg);}}
+#result .verdict{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+#result .verdict.win{color:var(--green);animation:winpop .6s cubic-bezier(.2,1.4,.4,1);}
+@keyframes winpop{0%{transform:scale(.4);opacity:0;}60%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+#result .verdict.lose{color:var(--stamp);}
+#result .answer{font-size:14px;color:var(--muted);margin-top:6px;}
+.answer-facts{font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;}
+.answer-facts span{color:var(--gold);}
+#result .answer b{color:var(--gold);font-size:18px;font-family:'Oswald',sans-serif;letter-spacing:1px;}
+.btn-row{display:flex;gap:8px;justify-content:center;}
+#share,#again{background:var(--green);color:#04140b;border:none;border-radius:4px;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;padding:11px 22px;cursor:pointer;text-transform:uppercase;}
+#again{background:var(--panel2);color:var(--gold);border:1px solid var(--border-lite);}
+.next-in{font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:1px;}
+.next-in b{color:var(--ink);}
+.statbar{display:flex;justify-content:space-around;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:16px;}
+.statbar .s{text-align:center;}
+.statbar .v{font-family:'Oswald',sans-serif;font-size:22px;color:var(--gold);font-weight:600;}
+.statbar .l{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+#toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--panel2);border:1px solid var(--border-lite);color:var(--ink);font-size:13px;padding:9px 18px;border-radius:4px;transition:transform .3s;z-index:50;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#overlay{position:fixed;inset:0;background:rgba(6,4,12,.82);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+#overlay.show{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border-lite);border-radius:6px;max-width:440px;width:100%;padding:22px;position:relative;max-height:88vh;overflow-y:auto;}
+.modal h2{font-family:'Oswald',sans-serif;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;}
+.onb-steps{display:flex;flex-direction:column;gap:14px;margin:18px 0;}
+.onb-step{display:flex;gap:14px;align-items:flex-start;}
+.onb-step .onb-ico{font-size:26px;flex-shrink:0;line-height:1;}
+.onb-step b{display:block;font-size:14px;color:var(--ink);margin-bottom:2px;}
+.onb-step span{font-size:12px;color:var(--muted);line-height:1.5;}
+.onb-cta{width:100%;background:var(--gold);color:#1a1606;border:none;border-radius:6px;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;padding:13px;cursor:pointer;text-transform:uppercase;margin-top:6px;}
+.onb-cta:active{transform:translateY(1px);}
+.modal p,.modal li{font-size:13px;color:var(--muted);line-height:1.7;}
+.modal ol{margin:10px 0 10px 18px;}
+.modal .close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;}
+.mode-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.streak-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,rgba(232,197,71,0.12),rgba(226,59,90,0.12));border:1px solid var(--border-lite);border-radius:8px;padding:8px 14px;margin-bottom:16px;font-family:'Roboto Mono',monospace;font-size:13px;color:var(--ink);}
+.streak-badge .flame{font-size:18px;}
+.streak-badge .sk-cur{color:var(--gold);font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;}
+.streak-badge .sk-sep{color:var(--muted);}
+.streak-badge .sk-best{color:var(--muted);font-size:12px;}
+.theme-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.theme-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.theme-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.theme-chip{background:var(--panel);border:1px solid var(--border-lite);border-radius:20px;color:var(--muted);font-family:'Roboto Mono',monospace;font-size:11px;padding:5px 12px;cursor:pointer;white-space:nowrap;}
+.theme-chip.active{border-color:var(--gold);color:var(--gold);background:var(--panel2);}
+.mode-tab{flex:1;padding:9px;background:var(--panel);border:1px solid var(--border-lite);border-radius:4px;color:var(--muted);font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;}
+.mode-tab.active{border-color:var(--gold);color:var(--gold);}
+footer{text-align:center;margin-top:26px;font-size:10px;color:var(--muted);letter-spacing:1px;line-height:1.6;}
+.cross-game{display:flex;align-items:center;gap:12px;margin-top:24px;padding:13px 16px;background:var(--panel);border:1px solid var(--border-lite);border-radius:6px;text-decoration:none;color:var(--ink);transition:border-color .2s;}
+.cross-game:hover{border-color:var(--gold);}
+.cross-game .cg-ball{font-size:26px;}
+.cross-game .cg-text{display:flex;flex-direction:column;flex:1;}
+.cross-game .cg-text b{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:.5px;}
+.cross-game .cg-text span{font-size:11px;color:var(--muted);}
+.cross-game .cg-arrow{font-size:20px;color:var(--gold);}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div id="overlay" onclick="closeModalBg(event)"><div class="modal" id="modal-content"></div></div>
+<div id="app">
+  <header>
+    <div class="brand"><div class="k">DOSSIÊ DO</div><div class="t">CRAQUE<b>.</b></div></div>
+    <div>
+      <div class="tools">
+        <button class="tool" onclick="showHelp()" title="Como jogar">?</button>
+        <button class="tool" onclick="showStats()" title="Estatísticas">📊</button>
+        <button class="tool" id="btn-sound" onclick="toggleSound()" title="Som">🔊</button>
+        <button class="tool" id="btn-vibrate" onclick="toggleVibrate()" title="Vibração">📳</button>
+      </div>
+      <div class="case"><span id="case-label">CASO Nº</span> <span class="num" id="case-num">#001</span></div>
+    </div>
+  </header>
+
+  <div class="streak-badge" id="streak-badge" style="display:none;"></div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-daily" onclick="switchMode('daily')">📅 Diário</button>
+    <button class="mode-tab" id="tab-infinite" onclick="switchMode('infinite')">♾️ Infinito</button>
+  </div>
+  <div class="theme-bar" id="theme-bar" style="display:none;">
+    <span class="theme-label">Tema:</span>
+    <div class="theme-chips" id="theme-chips">
+      <button class="theme-chip active" data-theme="todos" onclick="setTheme('todos')">Todos</button>
+      <button class="theme-chip" data-theme="brasil" onclick="setTheme('brasil')">🇧🇷 Brasil</button>
+      <button class="theme-chip" data-theme="lendas" onclick="setTheme('lendas')">⭐ Lendas</button>
+      <button class="theme-chip" data-theme="atual" onclick="setTheme('atual')">⚡ Era atual</button>
+      <button class="theme-chip" data-theme="goleiros" onclick="setTheme('goleiros')">🧤 Goleiros</button>
+    </div>
+  </div>
+
+  <div class="dossier">
+    <div class="dossier-head" id="dossier-head">Alvo não identificado</div>
+    <div class="silho">
+      <div class="badge" id="badge">
+        <svg class="silhouette" viewBox="0 0 100 100" aria-hidden="true">
+          <defs><clipPath id="badgeClip"><circle cx="50" cy="50" r="50"/></clipPath></defs>
+          <g clip-path="url(#badgeClip)">
+            <circle cx="50" cy="42" r="20" class="sil-fill"/>
+            <path d="M16 100 C16 76 31 67 50 67 C69 67 84 76 84 100 Z" class="sil-fill"/>
+          </g>
+        </svg>
+        <span class="badge-q" id="badge-q">?</span>
+      </div>
+      <div class="meta">Um craque misterioso entrou em campo.<br>Cada palpite errado <b>libera uma pista</b>.<br>Descubra em <b>6 tentativas</b>.</div>
+    </div>
+    <div class="clue-list" id="clues"></div>
+  </div>
+
+  <div class="guess-area" id="guess-area">
+    <div class="guess-row">
+      <input id="guess" type="text" autocomplete="off" placeholder="Digite o nome do jogador..." />
+      <button id="go">OK</button>
+      <div id="suggest"></div>
+    </div>
+    <div class="prox-legend" id="prox-legend" style="display:none;">A partir de agora, cada palpite mostra o que ele tem <b style="color:var(--green)">em comum</b> e o que é <b style="color:#c97a8a">diferente</b> do craque (nacionalidade · posição · época).</div>
+    <div class="attempts" id="attempts"></div>
+    <div class="bonus-area" id="bonus-area" style="display:none;">
+      <button id="bonus-btn" onclick="useBonusHint()">💡 Dica bônus: revelar 1ª letra</button>
+      <div class="bonus-note" id="bonus-note" style="display:none;"></div>
+    </div>
+    <div class="tries-left" id="tries-left"></div>
+  </div>
+
+  <div id="result">
+    <div id="confetti"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="answer" id="answer"></div>
+    <div class="grid" id="grid"></div>
+    <div class="btn-row">
+      <button id="share">Compartilhar 🖼️</button>
+      <button id="again" style="display:none;">Próximo ⚽</button>
+    </div>
+    <div class="next-in" id="next-in"></div>
+  </div>
+
+  <a class="cross-game" href="https://futword.futzone.com.br" target="_blank" rel="noopener">
+    <span class="cg-ball">⚽</span>
+    <span class="cg-text"><b>Jogue também FutWord</b><span>O jogo de palavras do futebol</span></span>
+    <span class="cg-arrow">→</span>
+  </a>
+  <footer>CRAQUE DO DIA · um novo mistério a cada dia<br>Fatos públicos de domínio histórico</footer>
+</div>
+<script>
+const PLAYERS=[
+{n:"Pelé",a:["pele"],nat:"Brasil",pos:"Atacante",dec:1950,cl:["Santos","Cosmos"],c:["Único tricampeão mundial como jogador","Marcou mais de mil gols"]},
+{n:"Garrincha",a:["garrincha"],nat:"Brasil",pos:"Ponta",dec:1950,cl:["Botafogo"],c:["Bicampeão mundial (1958 e 1962)","A 'Alegria do Povo'"]},
+{n:"Zico",a:["zico"],nat:"Brasil",pos:"Meia",dec:1970,cl:["Flamengo","Udinese"],c:["O 'Galinho de Quintino'","Maior ídolo do Flamengo"]},
+{n:"Sócrates",a:["socrates"],nat:"Brasil",pos:"Meia",dec:1970,cl:["Corinthians","Fiorentina"],c:["Líder da Democracia Corinthiana","Era médico formado"]},
+{n:"Rivelino",a:["rivelino"],nat:"Brasil",pos:"Meia",dec:1960,cl:["Corinthians","Fluminense"],c:["Tricampeão mundial em 1970","Famoso pela 'elástica'"]},
+{n:"Romário",a:["romario"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Vasco","PSV","Barcelona"],c:["Herói do tetra de 1994","Baixinho genial da área"]},
+{n:"Ronaldo",a:["ronaldo fenomeno","fenomeno","ronaldo nazario"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Inter de Milão","Real Madrid","Barcelona","Corinthians"],c:["Artilheiro da Copa de 2002","Apelidado de Fenômeno"]},
+{n:"Ronaldinho Gaúcho",a:["ronaldinho","ronaldinho gaucho"],nat:"Brasil",pos:"Meia-atacante",dec:1990,cl:["Grêmio","Barcelona","Milan","Flamengo"],c:["Melhor do mundo em 2004 e 2005","Campeão mundial em 2002"]},
+{n:"Rivaldo",a:["rivaldo"],nat:"Brasil",pos:"Meia-atacante",dec:1990,cl:["Palmeiras","Barcelona"],c:["Bola de Ouro em 1999","Campeão mundial em 2002"]},
+{n:"Kaká",a:["kaka","ricardo kaka"],nat:"Brasil",pos:"Meia",dec:2000,cl:["São Paulo","Milan","Real Madrid"],c:["Melhor do mundo em 2007","Campeão mundial em 2002"]},
+{n:"Cafu",a:["cafu"],nat:"Brasil",pos:"Lateral",dec:1990,cl:["São Paulo","Roma","Milan"],c:["Bicampeão mundial (1994 e 2002)","Capitão do penta"]},
+{n:"Roberto Carlos",a:["roberto carlos"],nat:"Brasil",pos:"Lateral",dec:1990,cl:["Inter de Milão","Real Madrid"],c:["Falta impossível contra a França","Lateral-esquerdo do penta"]},
+{n:"Neymar",a:["neymar","neymar jr"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Santos","Barcelona","PSG","Al-Hilal"],c:["Recordista de gols pela seleção","Camisa 10 da seleção"]},
+{n:"Dida",a:["dida"],nat:"Brasil",pos:"Goleiro",dec:1990,cl:["Corinthians","Milan"],c:["Goleiro bicampeão mundial","Pegou pênaltis na Champions"]},
+{n:"Taffarel",a:["taffarel"],nat:"Brasil",pos:"Goleiro",dec:1980,cl:["Internacional","Galatasaray"],c:["Herói nos pênaltis de 1994","Goleiro do tetra"]},
+{n:"Bebeto",a:["bebeto"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Vasco","Flamengo","Deportivo"],c:["Comemoração do 'bebê' em 1994","Trio com Romário no tetra"]},
+{n:"Carlos Alberto Torres",a:["carlos alberto torres"],nat:"Brasil",pos:"Lateral",dec:1960,cl:["Santos","Fluminense"],c:["Capitão do tri de 1970","Autor do gol mais bonito da Copa"]},
+{n:"Falcão",a:["falcao","paulo roberto falcao"],nat:"Brasil",pos:"Meia",dec:1970,cl:["Internacional","Roma"],c:["O 'Rei de Roma'","Craque da seleção de 1982"]},
+{n:"Tostão",a:["tostao"],nat:"Brasil",pos:"Atacante",dec:1960,cl:["Cruzeiro"],c:["Parceiro de Pelé em 1970","Carreira encurtada por lesão no olho"]},
+{n:"Jairzinho",a:["jairzinho"],nat:"Brasil",pos:"Ponta",dec:1960,cl:["Botafogo"],c:["Marcou em todos os jogos da Copa de 1970","O 'Furacão da Copa'"]},
+{n:"Gérson",a:["gerson"],nat:"Brasil",pos:"Meia",dec:1960,cl:["Botafogo","Flamengo"],c:["Cérebro do tri de 1970","Canhota precisa"]},
+{n:"Adriano",a:["adriano","imperador"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Flamengo","Inter de Milão"],c:["Apelidado de Imperador","Força e chute potente"]},
+{n:"Robinho",a:["robinho"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Santos","Real Madrid","Milan"],c:["Revelado no Santos","Famoso pelos pedaladas"]},
+{n:"Ronaldo Angelim",a:["angelim"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Flamengo"],c:["Gol do título brasileiro de 2009 do Flamengo","Zagueiro veterano"]},
+{n:"Diego Maradona",a:["maradona"],nat:"Argentina",pos:"Meia-atacante",dec:1970,cl:["Boca Juniors","Napoli","Barcelona"],c:["Campeão mundial em 1986","O gol 'La Mano de Dios'"]},
+{n:"Lionel Messi",a:["messi"],nat:"Argentina",pos:"Atacante",dec:2000,cl:["Barcelona","PSG","Inter Miami"],c:["Campeão mundial em 2022","Recordista de Bolas de Ouro"]},
+{n:"Gabriel Batistuta",a:["batistuta","batigol"],nat:"Argentina",pos:"Atacante",dec:1990,cl:["Fiorentina","Roma"],c:["Artilheiro histórico da Argentina","Apelidado 'Batigol'"]},
+{n:"Juan Román Riquelme",a:["riquelme"],nat:"Argentina",pos:"Meia",dec:1990,cl:["Boca Juniors","Villarreal"],c:["Maestro clássico","Ídolo do Boca"]},
+{n:"Sergio Agüero",a:["aguero","kun aguero","kun"],nat:"Argentina",pos:"Atacante",dec:2000,cl:["Atlético de Madrid","Manchester City"],c:["Gol do título inglês de 2012 do City","Maior artilheiro do City"]},
+{n:"Ángel Di María",a:["di maria","dimaria","fideo"],nat:"Argentina",pos:"Ponta",dec:2000,cl:["Benfica","Real Madrid","PSG"],c:["Gol na final da Copa de 2022","Apelidado 'Fideo'"]},
+{n:"Daniel Passarella",a:["passarella"],nat:"Argentina",pos:"Zagueiro",dec:1970,cl:["River Plate"],c:["Capitão campeão mundial em 1978","Zagueiro goleador"]},
+{n:"Mario Kempes",a:["kempes"],nat:"Argentina",pos:"Atacante",dec:1970,cl:["Valencia"],c:["Artilheiro e herói da Copa de 1978","Camisa 10 goleador"]},
+{n:"Javier Zanetti",a:["zanetti"],nat:"Argentina",pos:"Lateral",dec:1990,cl:["Inter de Milão"],c:["Capitão eterno da Inter","Longevidade impressionante"]},
+{n:"Emiliano Martínez",a:["dibu","dibu martinez","martinez"],nat:"Argentina",pos:"Goleiro",dec:2010,cl:["Aston Villa"],c:["Herói nos pênaltis da Copa de 2022","Goleiro provocador"]},
+{n:"Hernán Crespo",a:["crespo"],nat:"Argentina",pos:"Atacante",dec:1990,cl:["Parma","Inter de Milão","Chelsea"],c:["Artilheiro centroavante","Goleador na Série A"]},
+{n:"Carlos Tévez",a:["tevez"],nat:"Argentina",pos:"Atacante",dec:2000,cl:["Boca Juniors","Manchester United","Manchester City"],c:["Apaixonado e batalhador","Jogou nos dois Manchester"]},
+{n:"Zinedine Zidane",a:["zidane","zizou"],nat:"França",pos:"Meia",dec:1980,cl:["Juventus","Real Madrid"],c:["Campeão mundial em 1998","Cabeçada na final de 2006"]},
+{n:"Thierry Henry",a:["henry"],nat:"França",pos:"Atacante",dec:1990,cl:["Arsenal","Barcelona"],c:["Campeão mundial em 1998","Maior artilheiro do Arsenal"]},
+{n:"Michel Platini",a:["platini"],nat:"França",pos:"Meia",dec:1970,cl:["Saint-Étienne","Juventus"],c:["Melhor da Eurocopa de 1984","Tricampeão da Bola de Ouro"]},
+{n:"Kylian Mbappé",a:["mbappe","kylian mbappe"],nat:"França",pos:"Atacante",dec:2010,cl:["Monaco","PSG","Real Madrid"],c:["Campeão mundial em 2018","Três gols numa final de Copa"]},
+{n:"Patrick Vieira",a:["vieira","patrick vieira"],nat:"França",pos:"Meia",dec:1990,cl:["Arsenal","Juventus"],c:["Volante campeão mundial em 1998","Capitão dos 'Invencíveis' do Arsenal"]},
+{n:"Didier Deschamps",a:["deschamps"],nat:"França",pos:"Meia",dec:1990,cl:["Marselha","Juventus"],c:["Capitão campeão em 1998","Campeão também como técnico"]},
+{n:"Karim Benzema",a:["benzema"],nat:"França",pos:"Atacante",dec:2000,cl:["Lyon","Real Madrid"],c:["Bola de Ouro em 2022","Goleador do Real Madrid"]},
+{n:"Antoine Griezmann",a:["griezmann"],nat:"França",pos:"Atacante",dec:2010,cl:["Atlético de Madrid","Barcelona"],c:["Campeão mundial em 2018","Artilheiro da Euro 2016"]},
+{n:"Fabien Barthez",a:["barthez"],nat:"França",pos:"Goleiro",dec:1990,cl:["Marselha","Manchester United"],c:["Goleiro campeão mundial em 1998","Cabeça raspada característica"]},
+{n:"Marcel Desailly",a:["desailly"],nat:"França",pos:"Zagueiro",dec:1990,cl:["Milan","Chelsea"],c:["Zagueiro campeão mundial em 1998","Sólido defensor"]},
+{n:"Robert Pirès",a:["pires"],nat:"França",pos:"Meia",dec:1990,cl:["Arsenal"],c:["Campeão mundial em 1998","Meia dos 'Invencíveis'"]},
+{n:"David Trezeguet",a:["trezeguet"],nat:"França",pos:"Atacante",dec:1990,cl:["Monaco","Juventus"],c:["Gol de ouro na Euro 2000","Artilheiro da Juventus"]},
+{n:"Roberto Baggio",a:["baggio"],nat:"Itália",pos:"Meia-atacante",dec:1980,cl:["Juventus","Milan"],c:["Pênalti perdido na final de 1994","Melhor do mundo em 1993"]},
+{n:"Paolo Maldini",a:["maldini"],nat:"Itália",pos:"Zagueiro",dec:1980,cl:["Milan"],c:["Jogou a vida toda no Milan","Disputou 4 Copas do Mundo"]},
+{n:"Francesco Totti",a:["totti"],nat:"Itália",pos:"Meia-atacante",dec:1990,cl:["Roma"],c:["Jogou a vida toda na Roma","Campeão mundial em 2006"]},
+{n:"Alessandro Del Piero",a:["del piero","delpiero"],nat:"Itália",pos:"Atacante",dec:1990,cl:["Juventus"],c:["Ídolo eterno da Juventus","Campeão mundial em 2006"]},
+{n:"Gianluigi Buffon",a:["buffon"],nat:"Itália",pos:"Goleiro",dec:1990,cl:["Parma","Juventus"],c:["Campeão mundial em 2006","Goleiro lendário e longevo"]},
+{n:"Andrea Pirlo",a:["pirlo"],nat:"Itália",pos:"Meia",dec:2000,cl:["Milan","Juventus"],c:["Maestro do meio-campo","Campeão mundial em 2006"]},
+{n:"Paolo Rossi",a:["paolo rossi","rossi"],nat:"Itália",pos:"Atacante",dec:1980,cl:["Juventus"],c:["Artilheiro e herói da Copa de 1982","Bola de Ouro de 1982"]},
+{n:"Franco Baresi",a:["baresi"],nat:"Itália",pos:"Zagueiro",dec:1980,cl:["Milan"],c:["Líbero histórico do Milan","Capitão defensor"]},
+{n:"Fabio Cannavaro",a:["cannavaro"],nat:"Itália",pos:"Zagueiro",dec:1990,cl:["Parma","Juventus","Real Madrid"],c:["Capitão campeão mundial em 2006","Bola de Ouro de 2006"]},
+{n:"Alessandro Nesta",a:["nesta"],nat:"Itália",pos:"Zagueiro",dec:1990,cl:["Lazio","Milan"],c:["Zagueiro elegante","Campeão mundial em 2006"]},
+{n:"Gianluca Vialli",a:["vialli"],nat:"Itália",pos:"Atacante",dec:1980,cl:["Sampdoria","Juventus"],c:["Ídolo da Sampdoria","Campeão europeu como jogador e técnico"]},
+{n:"Roberto Mancini",a:["mancini"],nat:"Itália",pos:"Atacante",dec:1980,cl:["Sampdoria","Lazio"],c:["Dupla com Vialli na Sampdoria","Campeão da Euro como técnico"]},
+{n:"Christian Vieri",a:["vieri"],nat:"Itália",pos:"Atacante",dec:1990,cl:["Inter de Milão","Lazio"],c:["Centroavante artilheiro","Rodou vários clubes"]},
+{n:"Filippo Inzaghi",a:["inzaghi","pippo inzaghi"],nat:"Itália",pos:"Atacante",dec:1990,cl:["Juventus","Milan"],c:["Oportunista de área","Campeão mundial em 2006"]},
+{n:"Johan Cruyff",a:["cruyff","cruijff"],nat:"Holanda",pos:"Atacante",dec:1960,cl:["Ajax","Barcelona"],c:["Criador do 'futebol total'","Tricampeão europeu pelo Ajax"]},
+{n:"Marco van Basten",a:["van basten","basten"],nat:"Holanda",pos:"Atacante",dec:1980,cl:["Ajax","Milan"],c:["Voleio histórico na Euro 1988","Tricampeão da Bola de Ouro"]},
+{n:"Ruud Gullit",a:["gullit"],nat:"Holanda",pos:"Meia-atacante",dec:1980,cl:["PSV","Milan"],c:["Capitão campeão da Euro 1988","Bola de Ouro de 1987"]},
+{n:"Frank Rijkaard",a:["rijkaard"],nat:"Holanda",pos:"Meia",dec:1980,cl:["Ajax","Milan"],c:["Volante do Milan dos holandeses","Campeão da Euro 1988"]},
+{n:"Dennis Bergkamp",a:["bergkamp"],nat:"Holanda",pos:"Atacante",dec:1990,cl:["Ajax","Arsenal"],c:["O 'holandês voador'","Gol mágico na Copa de 1998"]},
+{n:"Ruud van Nistelrooy",a:["van nistelrooy","nistelrooy"],nat:"Holanda",pos:"Atacante",dec:1990,cl:["PSV","Manchester United","Real Madrid"],c:["Artilheiro de área","Goleador implacável"]},
+{n:"Robin van Persie",a:["van persie","persie"],nat:"Holanda",pos:"Atacante",dec:2000,cl:["Arsenal","Manchester United"],c:["Gol de voadora na Copa de 2014","Artilheiro da Premier"]},
+{n:"Arjen Robben",a:["robben"],nat:"Holanda",pos:"Ponta",dec:2000,cl:["Chelsea","Real Madrid","Bayern de Munique"],c:["Cortava para o pé esquerdo","Gol do título da Champions 2013"]},
+{n:"Wesley Sneijder",a:["sneijder"],nat:"Holanda",pos:"Meia",dec:2000,cl:["Ajax","Inter de Milão"],c:["Vice na Copa de 2010","Tri da Champions com a Inter"]},
+{n:"Edwin van der Sar",a:["van der sar"],nat:"Holanda",pos:"Goleiro",dec:1990,cl:["Ajax","Manchester United"],c:["Goleiro longevo","Campeão da Champions"]},
+{n:"Clarence Seedorf",a:["seedorf"],nat:"Holanda",pos:"Meia",dec:1990,cl:["Ajax","Real Madrid","Milan"],c:["Campeão da Champions por 3 clubes","Meia técnico"]},
+{n:"Patrick Kluivert",a:["kluivert"],nat:"Holanda",pos:"Atacante",dec:1990,cl:["Ajax","Barcelona"],c:["Gol do título da Champions 1995","Centroavante jovem revelação"]},
+{n:"Franz Beckenbauer",a:["beckenbauer","kaiser"],nat:"Alemanha",pos:"Zagueiro",dec:1960,cl:["Bayern de Munique","Cosmos"],c:["Campeão mundial como jogador e técnico","O 'Kaiser', líbero revolucionário"]},
+{n:"Gerd Müller",a:["gerd muller"],nat:"Alemanha",pos:"Atacante",dec:1960,cl:["Bayern de Munique"],c:["Gol do título mundial de 1974","Artilheiro histórico"]},
+{n:"Lothar Matthäus",a:["matthaus"],nat:"Alemanha",pos:"Meia",dec:1980,cl:["Bayern de Munique","Inter de Milão"],c:["Capitão campeão mundial em 1990","Recordista de jogos em Copas"]},
+{n:"Jürgen Klinsmann",a:["klinsmann"],nat:"Alemanha",pos:"Atacante",dec:1980,cl:["Inter de Milão","Tottenham","Bayern de Munique"],c:["Campeão mundial em 1990","Artilheiro e depois técnico"]},
+{n:"Oliver Kahn",a:["kahn"],nat:"Alemanha",pos:"Goleiro",dec:1990,cl:["Bayern de Munique"],c:["Melhor jogador da Copa de 2002","Goleiro temperamental e vencedor"]},
+{n:"Michael Ballack",a:["ballack"],nat:"Alemanha",pos:"Meia",dec:1990,cl:["Bayern de Munique","Chelsea"],c:["Meia goleador e capitão","Vices marcantes"]},
+{n:"Miroslav Klose",a:["klose"],nat:"Alemanha",pos:"Atacante",dec:2000,cl:["Werder Bremen","Bayern de Munique","Lazio"],c:["Maior artilheiro em Copas","Campeão mundial em 2014"]},
+{n:"Manuel Neuer",a:["neuer"],nat:"Alemanha",pos:"Goleiro",dec:2000,cl:["Schalke","Bayern de Munique"],c:["Campeão mundial em 2014","Pioneiro do goleiro-líbero"]},
+{n:"Philipp Lahm",a:["lahm"],nat:"Alemanha",pos:"Lateral",dec:2000,cl:["Bayern de Munique"],c:["Capitão campeão mundial em 2014","Lateral inteligente"]},
+{n:"Bastian Schweinsteiger",a:["schweinsteiger","schweini"],nat:"Alemanha",pos:"Meia",dec:2000,cl:["Bayern de Munique","Manchester United"],c:["Guerreiro da final de 2014","Coração do meio-campo"]},
+{n:"Thomas Müller",a:["thomas muller"],nat:"Alemanha",pos:"Meia-atacante",dec:2010,cl:["Bayern de Munique"],c:["Especialista em achar espaços","Campeão mundial em 2014"]},
+{n:"Toni Kroos",a:["kroos","toni kroos"],nat:"Alemanha",pos:"Meia",dec:2010,cl:["Bayern de Munique","Real Madrid"],c:["Passe milimétrico","Campeão mundial em 2014"]},
+{n:"Andrés Iniesta",a:["iniesta"],nat:"Espanha",pos:"Meia",dec:2000,cl:["Barcelona"],c:["Gol do título mundial de 2010","Símbolo do Barça de Guardiola"]},
+{n:"Xavi",a:["xavi","xavi hernandez"],nat:"Espanha",pos:"Meia",dec:2000,cl:["Barcelona"],c:["Maestro do Barça de Guardiola","Campeão mundial em 2010"]},
+{n:"Iker Casillas",a:["casillas"],nat:"Espanha",pos:"Goleiro",dec:2000,cl:["Real Madrid","Porto"],c:["Capitão campeão mundial em 2010","'San Iker'"]},
+{n:"Sergio Ramos",a:["ramos","sergio ramos"],nat:"Espanha",pos:"Zagueiro",dec:2000,cl:["Sevilla","Real Madrid","PSG"],c:["Gol no fim da final de 2014 da Champions","Zagueiro goleador e capitão"]},
+{n:"Raúl",a:["raul"],nat:"Espanha",pos:"Atacante",dec:1990,cl:["Real Madrid"],c:["Ídolo histórico do Real Madrid","Capitão merengue"]},
+{n:"Fernando Torres",a:["torres","el nino"],nat:"Espanha",pos:"Atacante",dec:2000,cl:["Atlético de Madrid","Liverpool","Chelsea"],c:["Gol do título da Euro 2008","Apelidado 'El Niño'"]},
+{n:"David Villa",a:["villa","david villa"],nat:"Espanha",pos:"Atacante",dec:2000,cl:["Valencia","Barcelona"],c:["Artilheiro histórico da Espanha","Goleador da campanha de 2010"]},
+{n:"Carles Puyol",a:["puyol"],nat:"Espanha",pos:"Zagueiro",dec:2000,cl:["Barcelona"],c:["Capitão xerife do Barça","Gol de cabeça na Copa de 2010"]},
+{n:"Sergio Busquets",a:["busquets"],nat:"Espanha",pos:"Meia",dec:2000,cl:["Barcelona"],c:["Volante do tiki-taka","Campeão mundial em 2010"]},
+{n:"David Silva",a:["david silva"],nat:"Espanha",pos:"Meia",dec:2000,cl:["Valencia","Manchester City"],c:["Meia criativo","Ídolo do City"]},
+{n:"Gerard Piqué",a:["pique"],nat:"Espanha",pos:"Zagueiro",dec:2000,cl:["Manchester United","Barcelona"],c:["Zagueiro campeão mundial em 2010","Carreira ligada ao Barça"]},
+{n:"Fernando Hierro",a:["hierro"],nat:"Espanha",pos:"Zagueiro",dec:1990,cl:["Real Madrid"],c:["Zagueiro goleador e capitão","Ídolo do Real Madrid"]},
+{n:"Cristiano Ronaldo",a:["cristiano","cr7"],nat:"Portugal",pos:"Atacante",dec:2000,cl:["Manchester United","Real Madrid","Juventus","Al-Nassr"],c:["Maior artilheiro de seleções","Campeão da Eurocopa em 2016"]},
+{n:"Luís Figo",a:["figo"],nat:"Portugal",pos:"Ponta",dec:1990,cl:["Barcelona","Real Madrid"],c:["Melhor do mundo em 2001","Transferência polêmica entre rivais"]},
+{n:"Eusébio",a:["eusebio"],nat:"Portugal",pos:"Atacante",dec:1960,cl:["Benfica"],c:["Artilheiro da Copa de 1966","A 'Pantera Negra'"]},
+{n:"Rui Costa",a:["rui costa"],nat:"Portugal",pos:"Meia",dec:1990,cl:["Fiorentina","Milan"],c:["Meia clássico da geração de ouro","Maestro criativo"]},
+{n:"Deco",a:["deco"],nat:"Portugal",pos:"Meia",dec:2000,cl:["Porto","Barcelona"],c:["Nascido no Brasil, jogou por Portugal","Bicampeão da Champions"]},
+{n:"Pepe",a:["pepe"],nat:"Portugal",pos:"Zagueiro",dec:2000,cl:["Porto","Real Madrid"],c:["Zagueiro durão e longevo","Nascido no Brasil"]},
+{n:"Bruno Fernandes",a:["bruno fernandes"],nat:"Portugal",pos:"Meia",dec:2010,cl:["Sporting","Manchester United"],c:["Meia goleador","Cobrador de pênaltis"]},
+{n:"Bobby Charlton",a:["charlton","bobby charlton"],nat:"Inglaterra",pos:"Meia",dec:1950,cl:["Manchester United"],c:["Campeão mundial em 1966","Sobrevivente do desastre de Munique"]},
+{n:"Steven Gerrard",a:["gerrard"],nat:"Inglaterra",pos:"Meia",dec:2000,cl:["Liverpool"],c:["Capitão do Liverpool","Herói da virada de Istambul"]},
+{n:"Frank Lampard",a:["lampard"],nat:"Inglaterra",pos:"Meia",dec:2000,cl:["Chelsea"],c:["Maior artilheiro da história do Chelsea","Meia goleador"]},
+{n:"David Beckham",a:["beckham"],nat:"Inglaterra",pos:"Meia",dec:1990,cl:["Manchester United","Real Madrid","Galaxy"],c:["Cobrança de falta perfeita","Ícone pop do futebol"]},
+{n:"Wayne Rooney",a:["rooney"],nat:"Inglaterra",pos:"Atacante",dec:2000,cl:["Everton","Manchester United"],c:["Maior artilheiro do United","Revelação precoce"]},
+{n:"Alan Shearer",a:["shearer"],nat:"Inglaterra",pos:"Atacante",dec:1990,cl:["Blackburn","Newcastle"],c:["Maior artilheiro da Premier League","Centroavante clássico"]},
+{n:"Gary Lineker",a:["lineker"],nat:"Inglaterra",pos:"Atacante",dec:1980,cl:["Everton","Barcelona","Tottenham"],c:["Chuteira de Ouro da Copa de 1986","Nunca tomou cartão"]},
+{n:"Harry Kane",a:["kane","harry kane"],nat:"Inglaterra",pos:"Atacante",dec:2010,cl:["Tottenham","Bayern de Munique"],c:["Artilheiro recordista da Inglaterra","Centroavante goleador"]},
+{n:"Paul Gascoigne",a:["gascoigne","gazza"],nat:"Inglaterra",pos:"Meia",dec:1980,cl:["Tottenham","Lazio"],c:["Talento e polêmicas","Lágrimas na Copa de 1990"]},
+{n:"Peter Shilton",a:["shilton"],nat:"Inglaterra",pos:"Goleiro",dec:1970,cl:["Nottingham Forest"],c:["Recordista de jogos pela Inglaterra","Goleiro longevo"]},
+{n:"George Best",a:["best","george best"],nat:"Irlanda do Norte",pos:"Ponta",dec:1960,cl:["Manchester United"],c:["Gênio que nunca jogou uma Copa","Estrela pop dos anos 60"]},
+{n:"Lev Yashin",a:["yashin"],nat:"União Soviética",pos:"Goleiro",dec:1950,cl:["Dínamo de Moscou"],c:["Único goleiro a ganhar a Bola de Ouro","A 'Aranha Negra'"]},
+{n:"Andriy Shevchenko",a:["shevchenko","sheva"],nat:"Ucrânia",pos:"Atacante",dec:1990,cl:["Dínamo de Kiev","Milan","Chelsea"],c:["Melhor do mundo em 2004","Maior ídolo da Ucrânia"]},
+{n:"Hristo Stoichkov",a:["stoichkov"],nat:"Bulgária",pos:"Atacante",dec:1980,cl:["CSKA Sofia","Barcelona"],c:["Melhor do mundo em 1994","Artilheiro da Copa de 1994"]},
+{n:"Gheorghe Hagi",a:["hagi"],nat:"Romênia",pos:"Meia",dec:1980,cl:["Real Madrid","Galatasaray"],c:["O 'Maradona dos Cárpatos'","Maestro da Romênia"]},
+{n:"Pavel Nedvěd",a:["nedved"],nat:"República Tcheca",pos:"Meia",dec:1990,cl:["Lazio","Juventus"],c:["Bola de Ouro em 2003","Pulmões incansáveis"]},
+{n:"Luka Modrić",a:["modric","luka modric"],nat:"Croácia",pos:"Meia",dec:2000,cl:["Tottenham","Real Madrid"],c:["Melhor jogador da Copa de 2018","Bola de Ouro de 2018"]},
+{n:"Davor Šuker",a:["suker"],nat:"Croácia",pos:"Atacante",dec:1990,cl:["Sevilla","Real Madrid"],c:["Artilheiro da Copa de 1998","Camisa 9 croata"]},
+{n:"Robert Lewandowski",a:["lewandowski","lewa"],nat:"Polônia",pos:"Atacante",dec:2010,cl:["Borussia Dortmund","Bayern de Munique","Barcelona"],c:["Artilheiro implacável","Melhor da FIFA em 2020 e 2021"]},
+{n:"Zbigniew Boniek",a:["boniek"],nat:"Polônia",pos:"Atacante",dec:1970,cl:["Juventus"],c:["Estrela polonesa na Copa de 1982","Ídolo na Juventus"]},
+{n:"Ferenc Puskás",a:["puskas"],nat:"Hungria",pos:"Atacante",dec:1950,cl:["Real Madrid"],c:["Estrela da 'Hungria Mágica'","Prêmio de gol mais bonito leva seu nome"]},
+{n:"Hidetoshi Nakata",a:["nakata"],nat:"Japão",pos:"Meia",dec:1990,cl:["Roma","Parma"],c:["Pioneiro asiático na Europa","Ídolo do Japão"]},
+{n:"Park Ji-sung",a:["park","park ji sung"],nat:"Coreia do Sul",pos:"Meia",dec:2000,cl:["PSV","Manchester United"],c:["Coreano campeão inglês","Pulmão incansável"]},
+{n:"Son Heung-min",a:["son","son heung min"],nat:"Coreia do Sul",pos:"Atacante",dec:2010,cl:["Tottenham"],c:["Artilheiro asiático na Premier","Capitão da Coreia do Sul"]},
+{n:"Didier Drogba",a:["drogba"],nat:"Costa do Marfim",pos:"Atacante",dec:2000,cl:["Marselha","Chelsea"],c:["Herói da Champions de 2012","Maior ídolo do Chelsea"]},
+{n:"Samuel Eto'o",a:["etoo","eto o"],nat:"Camarões",pos:"Atacante",dec:2000,cl:["Barcelona","Inter de Milão"],c:["Artilheiro africano histórico","Bi da Champions com o Barça"]},
+{n:"Roger Milla",a:["milla"],nat:"Camarões",pos:"Atacante",dec:1980,cl:["Montpellier","Saint-Étienne"],c:["Dança no escanteio em 1990","Veterano sensação da Copa"]},
+{n:"George Weah",a:["weah"],nat:"Libéria",pos:"Atacante",dec:1980,cl:["Milan","PSG"],c:["Único africano Bola de Ouro","Virou presidente da Libéria"]},
+{n:"Mohamed Salah",a:["salah","mo salah"],nat:"Egito",pos:"Atacante",dec:2010,cl:["Roma","Liverpool"],c:["Faraó do Liverpool","Artilheiro recordista da Premier"]},
+{n:"Carlos Valderrama",a:["valderrama","el pibe"],nat:"Colômbia",pos:"Meia",dec:1980,cl:["Deportivo Cali","Junior"],c:["Cabeleira loira inconfundível","Maestro da Colômbia"]},
+{n:"James Rodríguez",a:["james","james rodriguez"],nat:"Colômbia",pos:"Meia",dec:2010,cl:["Porto","Monaco","Real Madrid"],c:["Artilheiro da Copa de 2014","Golaço de voleio em 2014"]},
+{n:"Iván Zamorano",a:["zamorano"],nat:"Chile",pos:"Atacante",dec:1990,cl:["Real Madrid","Inter de Milão"],c:["Camisa '1+8' na Inter","Goleador chileno"]},
+{n:"Iván Córdoba",a:["cordoba"],nat:"Colômbia",pos:"Zagueiro",dec:1990,cl:["Inter de Milão"],c:["Zagueiro baixinho e firme","Ídolo da Inter"]},
+{n:"Alexis Sánchez",a:["alexis","alexis sanchez"],nat:"Chile",pos:"Atacante",dec:2010,cl:["Udinese","Barcelona","Arsenal"],c:["Bicampeão da Copa América","Versátil ofensivo"]},
+{n:"Arturo Vidal",a:["vidal","king arturo"],nat:"Chile",pos:"Meia",dec:2010,cl:["Juventus","Bayern de Munique"],c:["Volante guerreiro","Bicampeão da Copa América"]},
+{n:"Enzo Francescoli",a:["francescoli"],nat:"Uruguai",pos:"Meia",dec:1980,cl:["River Plate","Marselha"],c:["O 'Príncipe' uruguaio","Ídolo do River"]},
+{n:"Diego Forlán",a:["forlan"],nat:"Uruguai",pos:"Atacante",dec:2000,cl:["Manchester United","Villarreal","Atlético de Madrid"],c:["Melhor jogador da Copa de 2010","Artilheiro de chute forte"]},
+{n:"Luis Suárez",a:["suarez","luis suarez"],nat:"Uruguai",pos:"Atacante",dec:2000,cl:["Ajax","Liverpool","Barcelona"],c:["Artilheiro mordedor","Trio MSN no Barça"]},
+{n:"Edinson Cavani",a:["cavani"],nat:"Uruguai",pos:"Atacante",dec:2000,cl:["Napoli","PSG"],c:["Centroavante batalhador","Goleador do PSG"]},
+{n:"Alfredo Di Stéfano",a:["di stefano"],nat:"Argentina",pos:"Atacante",dec:1950,cl:["Real Madrid"],c:["Estrela das primeiras Champions","Ídolo histórico do Real"]},
+{n:"Vinícius Júnior",a:["vinicius","vini jr","vinicius junior"],nat:"Brasil",pos:"Ponta",dec:2010,cl:["Flamengo","Real Madrid"],c:["Decisivo na Champions do Real","Ponta-esquerda driblador"]},
+{n:"Rodrygo",a:["rodrygo"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Santos","Real Madrid"],c:["Noites mágicas na Champions","Revelado pelo Santos"]},
+{n:"Casemiro",a:["casemiro"],nat:"Brasil",pos:"Meia",dec:2010,cl:["São Paulo","Real Madrid","Manchester United"],c:["Volante de marcação forte","Tri da Champions com o Real"]},
+{n:"Thiago Silva",a:["thiago silva"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Milan","PSG","Chelsea"],c:["Capitão zagueiro longevo","'O Monstro'"]},
+{n:"Marcelo",a:["marcelo"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Fluminense","Real Madrid"],c:["Lateral-esquerdo ofensivo","Maior vencedor da história do Real"]},
+{n:"Dani Alves",a:["dani alves","daniel alves"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Sevilla","Barcelona","Juventus"],c:["Maior vencedor da história do futebol em títulos","Lateral-direito ofensivo"]},
+{n:"Alisson",a:["alisson"],nat:"Brasil",pos:"Goleiro",dec:2010,cl:["Internacional","Roma","Liverpool"],c:["Goleiro do Liverpool","Pênaltis e defesaços"]},
+{n:"Ederson",a:["ederson"],nat:"Brasil",pos:"Goleiro",dec:2010,cl:["Benfica","Manchester City"],c:["Goleiro de pés refinados","Ídolo do City"]},
+{n:"Gabriel Jesus",a:["gabriel jesus"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Palmeiras","Manchester City","Arsenal"],c:["Revelado no Palmeiras","Atacante da seleção"]},
+{n:"Philippe Coutinho",a:["philippe coutinho","coutinho liverpool"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Inter de Milão","Liverpool","Barcelona"],c:["Chute colocado de fora da área","Meia canhoto"]},
+{n:"David Luiz",a:["david luiz"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Benfica","Chelsea","PSG"],c:["Zagueiro de cabelo marcante","Lançamentos longos"]},
+{n:"Júlio César",a:["julio cesar"],nat:"Brasil",pos:"Goleiro",dec:2000,cl:["Flamengo","Inter de Milão"],c:["Goleiro da Inter da tríplice coroa","Defendeu pênalti em 2014"]},
+{n:"Maicon",a:["maicon"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Monaco","Inter de Milão"],c:["Lateral potente da Inter","Golaço sem ângulo em 2010"]},
+{n:"Lúcio",a:["lucio"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Bayer Leverkusen","Bayern de Munique","Inter de Milão"],c:["Zagueiro campeão mundial em 2002","Capitão da Inter da Champions"]},
+{n:"Juninho Pernambucano",a:["juninho","juninho pernambucano"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Vasco","Lyon"],c:["Rei das faltas","Ídolo do Lyon"]},
+{n:"Alex",a:["alex meia"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Palmeiras","Cruzeiro","Fenerbahçe"],c:["Camisa 10 clássico","Ídolo no Fenerbahçe"]},
+{n:"Edmundo",a:["edmundo"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Vasco","Palmeiras","Fiorentina"],c:["O 'Animal'","Artilheiro brasileiro de 1997"]},
+{n:"Djalminha",a:["djalminha"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Palmeiras","Deportivo"],c:["Meia habilidoso e polêmico","Ídolo do Deportivo"]},
+{n:"Marta",a:["marta"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Vasco","Umeå","Orlando Pride"],c:["Maior artilheira da história das Copas","Seis vezes melhor do mundo"]},
+{n:"Formiga",a:["formiga"],nat:"Brasil",pos:"Meia",dec:1990,cl:["São José","PSG"],c:["Recordista de participações em Copas","Longevidade impressionante"]},
+{n:"Yaya Touré",a:["yaya toure","toure"],nat:"Costa do Marfim",pos:"Meia",dec:2000,cl:["Barcelona","Manchester City"],c:["Volante goleador","Quatro vezes melhor da África"]},
+{n:"Jay-Jay Okocha",a:["okocha","jay jay okocha"],nat:"Nigéria",pos:"Meia",dec:1990,cl:["PSG","Bolton"],c:["Dribles fora do comum","Maestro nigeriano"]},
+{n:"Nwankwo Kanu",a:["kanu"],nat:"Nigéria",pos:"Atacante",dec:1990,cl:["Ajax","Arsenal"],c:["Ouro olímpico em 1996","Centroavante alto e técnico"]},
+{n:"Michael Essien",a:["essien"],nat:"Gana",pos:"Meia",dec:2000,cl:["Lyon","Chelsea"],c:["Volante potente","O 'Bison'"]},
+{n:"Riyad Mahrez",a:["mahrez"],nat:"Argélia",pos:"Ponta",dec:2010,cl:["Leicester","Manchester City"],c:["Campeão improvável com o Leicester","Ponta canhoto driblador"]},
+{n:"Sadio Mané",a:["mane","sadio mane"],nat:"Senegal",pos:"Atacante",dec:2010,cl:["Liverpool","Bayern de Munique"],c:["Velocidade e gols pelo Liverpool","Melhor da África"]},
+{n:"Mohamed Aboutrika",a:["aboutrika"],nat:"Egito",pos:"Meia",dec:2000,cl:["Al Ahly"],c:["Ídolo do Al Ahly","Mago do meio-campo egípcio"]},
+{n:"Abedi Pelé",a:["abedi pele","abedi"],nat:"Gana",pos:"Meia",dec:1980,cl:["Marselha"],c:["Campeão europeu pelo Marselha","Estrela ganesa"]},
+{n:"Andriy Arshavin",a:["arshavin"],nat:"Rússia",pos:"Meia",dec:2000,cl:["Zenit","Arsenal"],c:["Quatro gols no Liverpool","Estrela russa de 2008"]},
+{n:"Hakan Şükür",a:["sukur","hakan sukur"],nat:"Turquia",pos:"Atacante",dec:1990,cl:["Galatasaray"],c:["Gol mais rápido da história das Copas","Artilheiro turco"]},
+{n:"Georgi Kinkladze",a:["kinkladze"],nat:"Geórgia",pos:"Meia",dec:1990,cl:["Manchester City"],c:["Dribles mágicos","Ídolo cult do City"]},
+{n:"Mladen Petrić",a:["petric"],nat:"Croácia",pos:"Atacante",dec:2000,cl:["Hamburgo"],c:["Atacante goleador","Seleção croata"]},
+{n:"Robert Prosinečki",a:["prosinecki"],nat:"Croácia",pos:"Meia",dec:1990,cl:["Real Madrid","Barcelona"],c:["Jogou nos dois rivais espanhóis","Talento da geração croata"]},
+{n:"Hugo Sánchez",a:["hugo sanchez"],nat:"México",pos:"Atacante",dec:1980,cl:["Real Madrid"],c:["Gols de voleio acrobáticos","Maior ídolo mexicano"]},
+{n:"Rafa Márquez",a:["rafa marquez","marquez"],nat:"México",pos:"Zagueiro",dec:2000,cl:["Monaco","Barcelona"],c:["Capitão mexicano em várias Copas","Zagueiro com saída de bola"]},
+{n:"Cuauhtémoc Blanco",a:["blanco","cuauhtemoc"],nat:"México",pos:"Meia-atacante",dec:1990,cl:["América"],c:["O drible 'cuauhtemiña'","Ídolo do América mexicano"]},
+{n:"Guillermo Ochoa",a:["ochoa","memo ochoa"],nat:"México",pos:"Goleiro",dec:2000,cl:["América","Standard"],c:["Defesas heroicas em Copas","Goleiro mexicano longevo"]},
+{n:"Keylor Navas",a:["keylor","keylor navas"],nat:"Costa Rica",pos:"Goleiro",dec:2010,cl:["Levante","Real Madrid","PSG"],c:["Tri da Champions com o Real","Herói da Copa de 2014"]},
+{n:"Bryan Ruiz",a:["bryan ruiz"],nat:"Costa Rica",pos:"Meia",dec:2010,cl:["Fulham","Sporting"],c:["Capitão da surpresa de 2014","Meia técnico"]},
+{n:"Landon Donovan",a:["donovan"],nat:"Estados Unidos",pos:"Meia",dec:2000,cl:["Galaxy","Everton"],c:["Maior ídolo dos EUA","Gol no fim contra a Argélia em 2010"]},
+{n:"Clint Dempsey",a:["dempsey"],nat:"Estados Unidos",pos:"Atacante",dec:2000,cl:["Fulham","Tottenham"],c:["Artilheiro norte-americano","Atacante combativo"]},
+{n:"Tim Howard",a:["tim howard"],nat:"Estados Unidos",pos:"Goleiro",dec:2000,cl:["Manchester United","Everton"],c:["Recorde de defesas numa Copa em 2014","Goleiro paredão"]},
+{n:"Zlatan Ibrahimović",a:["ibrahimovic","zlatan","ibra"],nat:"Suécia",pos:"Atacante",dec:2000,cl:["Ajax","Inter de Milão","Milan","PSG","Manchester United"],c:["Voleio de bicicleta de 30m","Personalidade gigante"]},
+{n:"Henrik Larsson",a:["larsson"],nat:"Suécia",pos:"Atacante",dec:1990,cl:["Celtic","Barcelona"],c:["Ídolo do Celtic","Decisivo na final da Champions 2006"]},
+{n:"Eric Cantona",a:["cantona"],nat:"França",pos:"Atacante",dec:1990,cl:["Leeds","Manchester United"],c:["O 'King Eric' do United","Gola levantada característica"]},
+{n:"Ryan Giggs",a:["giggs"],nat:"País de Gales",pos:"Ponta",dec:1990,cl:["Manchester United"],c:["Carreira inteira no United","Recordista de títulos ingleses"]},
+{n:"Gareth Bale",a:["bale"],nat:"País de Gales",pos:"Ponta",dec:2000,cl:["Tottenham","Real Madrid"],c:["Bicicleta na final da Champions 2018","Velocista galês"]},
+{n:"Roy Keane",a:["keane","roy keane"],nat:"Irlanda",pos:"Meia",dec:1990,cl:["Manchester United"],c:["Capitão durão do United","Volante guerreiro"]},
+{n:"Petr Čech",a:["cech","petr cech"],nat:"República Tcheca",pos:"Goleiro",dec:2000,cl:["Chelsea","Arsenal"],c:["Goleiro de capacete","Recordista de jogos sem sofrer gol"]},
+{n:"Jan Oblak",a:["oblak"],nat:"Eslovênia",pos:"Goleiro",dec:2010,cl:["Atlético de Madrid"],c:["Goleiro seguro do Atlético","Vários prêmios de melhor goleiro"]},
+{n:"Edin Džeko",a:["dzeko"],nat:"Bósnia",pos:"Atacante",dec:2000,cl:["Wolfsburg","Manchester City","Roma"],c:["Centroavante alto e goleador","Ídolo bósnio"]},
+{n:"Kevin De Bruyne",a:["de bruyne","kdb"],nat:"Bélgica",pos:"Meia",dec:2010,cl:["Wolfsburg","Manchester City"],c:["Passes e assistências geniais","Maestro do City"]},
+{n:"Eden Hazard",a:["hazard"],nat:"Bélgica",pos:"Ponta",dec:2010,cl:["Lille","Chelsea","Real Madrid"],c:["Driblador belga","Ídolo no Chelsea"]},
+{n:"Romelu Lukaku",a:["lukaku"],nat:"Bélgica",pos:"Atacante",dec:2010,cl:["Anderlecht","Inter de Milão","Chelsea"],c:["Centroavante forte e veloz","Artilheiro belga"]},
+{n:"Vincent Kompany",a:["kompany"],nat:"Bélgica",pos:"Zagueiro",dec:2000,cl:["Hamburgo","Manchester City"],c:["Capitão zagueiro do City","Golaço no título de 2019"]},
+{n:"Jan Vertonghen",a:["vertonghen"],nat:"Bélgica",pos:"Zagueiro",dec:2010,cl:["Ajax","Tottenham"],c:["Zagueiro canhoto belga","Longevidade na seleção"]},
+{n:"Virgil van Dijk",a:["van dijk"],nat:"Holanda",pos:"Zagueiro",dec:2010,cl:["Southampton","Liverpool"],c:["Zagueiro dominante do Liverpool","Vice na Bola de Ouro de 2019"]},
+{n:"Erling Haaland",a:["haaland"],nat:"Noruega",pos:"Atacante",dec:2010,cl:["Borussia Dortmund","Manchester City"],c:["Máquina de gols","Centroavante norueguês veloz"]},
+{n:"Nílton Santos",a:["nilton santos"],nat:"Brasil",pos:"Lateral",dec:1950,cl:["Botafogo"],c:["A 'Enciclopédia do Futebol'","Bicampeão mundial (1958 e 1962)"]},
+{n:"Djalma Santos",a:["djalma santos"],nat:"Brasil",pos:"Lateral",dec:1950,cl:["Portuguesa","Palmeiras"],c:["Lateral-direito tricampeão de Copas","Seleção do mundo em três Copas"]},
+{n:"Didi",a:["didi"],nat:"Brasil",pos:"Meia",dec:1950,cl:["Botafogo","Fluminense"],c:["Criador da folha-seca","Bicampeão mundial e craque de 1958"]},
+{n:"Vavá",a:["vava"],nat:"Brasil",pos:"Atacante",dec:1950,cl:["Vasco","Atlético-MG"],c:["Artilheiro nas finais de 1958 e 1962","O 'Peito de Aço'"]},
+{n:"Zagallo",a:["zagallo","zagalo"],nat:"Brasil",pos:"Ponta",dec:1950,cl:["Flamengo","Botafogo"],c:["Campeão como jogador e técnico","Tetracampeão em funções diferentes"]},
+{n:"Gilmar",a:["gilmar"],nat:"Brasil",pos:"Goleiro",dec:1950,cl:["Corinthians","Santos"],c:["Goleiro bicampeão mundial","Titular em 1958 e 1962"]},
+{n:"Nilton de Sordi",a:["de sordi","sordi"],nat:"Brasil",pos:"Zagueiro",dec:1950,cl:["São Paulo"],c:["Zagueiro campeão mundial em 1958","Defensor do título na Suécia"]},
+{n:"Zito",a:["zito"],nat:"Brasil",pos:"Meia",dec:1950,cl:["Santos"],c:["Volante campeão mundial em 1962","Parceiro de Pelé no Santos"]},
+{n:"Coutinho (Santos)",a:["coutinho santos"],nat:"Brasil",pos:"Atacante",dec:1950,cl:["Santos"],c:["Dupla histórica com Pelé no Santos","Faro de gol na área"]},
+{n:"Ademir da Guia",a:["ademir da guia"],nat:"Brasil",pos:"Meia",dec:1960,cl:["Palmeiras"],c:["O 'Divino', maestro do Palmeiras","Ídolo máximo palmeirense"]},
+{n:"Gérson de Oliveira",a:["gerson canhotinha"],nat:"Brasil",pos:"Meia",dec:1960,cl:["Botafogo","São Paulo"],c:["Canhota precisa nos lançamentos","Cérebro do meio-campo"]},
+{n:"Roberto Dinamite",a:["roberto dinamite","dinamite"],nat:"Brasil",pos:"Atacante",dec:1970,cl:["Vasco"],c:["Maior artilheiro da história do Vasco","Ídolo absoluto em São Januário"]},
+{n:"Paulo César Caju",a:["paulo cesar caju","caju"],nat:"Brasil",pos:"Ponta",dec:1970,cl:["Botafogo","Flamengo"],c:["Ponta driblador dos anos 70","Talento da seleção de 1970"]},
+{n:"Clodoaldo",a:["clodoaldo"],nat:"Brasil",pos:"Meia",dec:1960,cl:["Santos"],c:["Volante do tri de 1970","Dribles na jogada do gol de Carlos Alberto"]},
+{n:"Marco Antônio",a:["marco antonio"],nat:"Brasil",pos:"Lateral",dec:1970,cl:["Fluminense"],c:["Lateral-esquerdo do tri de 1970","Defensor da seleção tricampeã"]},
+{n:"Toninho Cerezo",a:["toninho cerezo","cerezo"],nat:"Brasil",pos:"Meia",dec:1970,cl:["Atlético-MG","Roma"],c:["Volante da seleção de 1982","Ídolo do Atlético-MG"]},
+{n:"Júnior",a:["junior flamengo"],nat:"Brasil",pos:"Lateral",dec:1970,cl:["Flamengo","Torino"],c:["Lateral e meia versátil do Flamengo","Craque da seleção de 1982"]},
+{n:"Éder",a:["eder 1982"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Atlético-MG","Grêmio"],c:["Canhão da seleção de 1982","Famoso pelo chute de letra"]},
+{n:"Serginho Chulapa",a:["serginho chulapa","chulapa"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["São Paulo","Santos"],c:["Centroavante da seleção de 1982","Artilheiro raçudo"]},
+{n:"Renato Gaúcho",a:["renato gaucho","renato portaluppi"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Grêmio","Fluminense"],c:["Ídolo do Grêmio e Fluminense","Gol do título mundial gremista de 1983"]},
+{n:"Careca",a:["careca"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Guarani","São Paulo","Napoli"],c:["Dupla com Maradona no Napoli","Artilheiro da seleção dos anos 80"]},
+{n:"Casagrande",a:["casagrande"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["Corinthians","Torino"],c:["Democracia Corinthiana com Sócrates","Centroavante do Corinthians dos anos 80"]},
+{n:"Müller (São Paulo)",a:["muller brasil","muller sao paulo"],nat:"Brasil",pos:"Atacante",dec:1980,cl:["São Paulo"],c:["Atacante da seleção dos anos 80 e 90","Ídolo do São Paulo"]},
+{n:"Branco",a:["branco"],nat:"Brasil",pos:"Lateral",dec:1980,cl:["Grêmio","Porto"],c:["Lateral-esquerdo de chute forte","Falta decisiva na Copa de 1994"]},
+{n:"Dunga",a:["dunga"],nat:"Brasil",pos:"Meia",dec:1980,cl:["Internacional","Fiorentina"],c:["Capitão do tetra de 1994","Volante líder e depois técnico"]},
+{n:"Mauro Silva",a:["mauro silva"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Bragantino","Deportivo"],c:["Volante do tetra de 1994","Ídolo do Deportivo La Coruña"]},
+{n:"Zinho",a:["zinho"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Flamengo","Palmeiras"],c:["Meia campeão mundial em 1994","Camisa de criação no tetra"]},
+{n:"Jorginho",a:["jorginho lateral"],nat:"Brasil",pos:"Lateral",dec:1990,cl:["Flamengo","Bayern de Munique"],c:["Lateral-direito do tetra de 1994","Defensor titular em 1994"]},
+{n:"Aldair",a:["aldair"],nat:"Brasil",pos:"Zagueiro",dec:1990,cl:["Benfica","Roma"],c:["Zagueiro do tetra de 1994","Ídolo histórico da Roma"]},
+{n:"Márcio Santos",a:["marcio santos"],nat:"Brasil",pos:"Zagueiro",dec:1990,cl:["Internacional","Bordeaux"],c:["Zagueiro campeão mundial em 1994","Dupla de zaga no tetra"]},
+{n:"Leonardo",a:["leonardo araujo"],nat:"Brasil",pos:"Meia",dec:1990,cl:["São Paulo","Milan","PSG"],c:["Meia-esquerda do tetra","Depois dirigente no Milan e PSG"]},
+{n:"Juninho Paulista",a:["juninho paulista"],nat:"Brasil",pos:"Meia",dec:1990,cl:["São Paulo","Middlesbrough"],c:["Ídolo do Middlesbrough","Meia habilidoso dos anos 90"]},
+{n:"Sávio",a:["savio"],nat:"Brasil",pos:"Ponta",dec:1990,cl:["Flamengo","Real Madrid"],c:["O 'Anjo Loiro' do Flamengo","Ponta driblador"]},
+{n:"Edílson",a:["edilson capetinha","edilson"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Corinthians","Flamengo"],c:["O 'Capetinha', driblador","Embaixadinhas polêmicas em finais"]},
+{n:"Vampeta",a:["vampeta"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Corinthians","PSG"],c:["Volante campeão mundial em 2002","Ídolo do Corinthians"]},
+{n:"Belletti",a:["belletti"],nat:"Brasil",pos:"Lateral",dec:1990,cl:["São Paulo","Barcelona"],c:["Gol do título da Champions 2006","Lateral-direito campeão mundial em 2002"]},
+{n:"Edmílson",a:["edmilson"],nat:"Brasil",pos:"Zagueiro",dec:1990,cl:["Lyon","Barcelona"],c:["Volante e zagueiro do penta de 2002","Campeão da Champions com o Barça"]},
+{n:"Roque Júnior",a:["roque junior"],nat:"Brasil",pos:"Zagueiro",dec:1990,cl:["Palmeiras","Milan"],c:["Zagueiro do penta de 2002","Campeão da Champions pelo Milan"]},
+{n:"Gilberto Silva",a:["gilberto silva"],nat:"Brasil",pos:"Meia",dec:2000,cl:["Atlético-MG","Arsenal"],c:["Volante do penta e dos 'Invencíveis'","Ídolo do Arsenal"]},
+{n:"Juan",a:["juan zagueiro"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Flamengo","Roma"],c:["Zagueiro da seleção dos anos 2000","Ídolo na Roma e no Flamengo"]},
+{n:"Gilberto",a:["gilberto lateral"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Internacional","Tottenham"],c:["Lateral-direito do penta de 2002","Reserva no título de 2002"]},
+{n:"Cris",a:["cris zagueiro"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Cruzeiro","Lyon"],c:["Zagueiro ídolo do Lyon","Capitão da era de ouro francesa"]},
+{n:"Luisão",a:["luisao"],nat:"Brasil",pos:"Zagueiro",dec:2000,cl:["Cruzeiro","Benfica"],c:["Capitão histórico do Benfica","Zagueiro líder por mais de uma década"]},
+{n:"Maxwell",a:["maxwell"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Ajax","Barcelona","PSG"],c:["Lateral-esquerdo multicampeão","Vencedor em vários países"]},
+{n:"Grafite",a:["grafite"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["São Paulo","Wolfsburg"],c:["Artilheiro do título alemão do Wolfsburg","Dupla com Dzeko na Alemanha"]},
+{n:"Diego Ribas",a:["diego ribas","diego meia"],nat:"Brasil",pos:"Meia",dec:2000,cl:["Santos","Werder Bremen","Flamengo"],c:["Meia camisa 10 técnico","Ídolo no Werder e no Flamengo"]},
+{n:"Alexandre Pato",a:["pato"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Internacional","Milan"],c:["O 'Patinho', revelação precoce","Artilheiro jovem do Milan"]},
+{n:"Hulk",a:["hulk"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Porto","Zenit","Atlético-MG"],c:["Atacante de chute potente","Ídolo no Porto e no Zenit"]},
+{n:"Willian",a:["willian"],nat:"Brasil",pos:"Ponta",dec:2000,cl:["Shakhtar","Chelsea"],c:["Ponta driblador da seleção","Ídolo no Chelsea"]},
+{n:"Oscar",a:["oscar"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Internacional","Chelsea"],c:["Meia da seleção de 2014","Brilhou no Chelsea e na China"]},
+{n:"Fernandinho",a:["fernandinho"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Shakhtar","Manchester City"],c:["Volante ídolo do Manchester City","Líder no meio-campo de Guardiola"]},
+{n:"Douglas Costa",a:["douglas costa"],nat:"Brasil",pos:"Ponta",dec:2010,cl:["Shakhtar","Bayern de Munique","Juventus"],c:["Ponta veloz e driblador","Vencedor na Alemanha e Itália"]},
+{n:"Firmino",a:["roberto firmino","bobby firmino"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Hoffenheim","Liverpool"],c:["Falso 9 do Liverpool","Campeão da Champions e do mundo"]},
+{n:"Richarlison",a:["richarlison"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Watford","Everton","Tottenham"],c:["Atacante da seleção","Golaço de voleio na Copa de 2022"]},
+{n:"Antony",a:["antony"],nat:"Brasil",pos:"Ponta",dec:2010,cl:["Ajax","Manchester United"],c:["Ponta-direita driblador","Revelado pelo São Paulo"]},
+{n:"Bruno Guimarães",a:["bruno guimaraes"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Athletico","Lyon","Newcastle"],c:["Volante da seleção atual","Ídolo no Newcastle"]},
+{n:"Éder Militão",a:["militao","eder militao"],nat:"Brasil",pos:"Zagueiro",dec:2010,cl:["São Paulo","Porto","Real Madrid"],c:["Zagueiro do Real Madrid","Campeão da Champions"]},
+{n:"Gabriel Magalhães",a:["gabriel magalhaes","gabriel arsenal"],nat:"Brasil",pos:"Zagueiro",dec:2010,cl:["Lille","Arsenal"],c:["Zagueiro ídolo do Arsenal","Defensor da seleção atual"]},
+{n:"Lucas Paquetá",a:["paqueta","lucas paqueta"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Flamengo","Milan","West Ham"],c:["Meia da seleção atual","Revelado pelo Flamengo"]},
+{n:"Raphinha",a:["raphinha"],nat:"Brasil",pos:"Ponta",dec:2010,cl:["Leeds","Barcelona"],c:["Ponta-direita do Barcelona","Driblador da seleção atual"]},
+{n:"Endrick",a:["endrick"],nat:"Brasil",pos:"Atacante",dec:2020,cl:["Palmeiras","Real Madrid"],c:["Joia revelada pelo Palmeiras","Contratado pelo Real Madrid muito jovem"]},
+{n:"Gabigol",a:["gabigol","gabriel barbosa"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Santos","Inter de Milão","Flamengo"],c:["Artilheiro dos títulos do Flamengo","Dois gols na final da Libertadores de 2019"]},
+{n:"Pedro",a:["pedro flamengo"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Fluminense","Flamengo"],c:["Centroavante artilheiro do Flamengo","Goleador da seleção"]},
+{n:"Everton Ribeiro",a:["everton ribeiro"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Cruzeiro","Flamengo"],c:["Meia ídolo do Flamengo","Camisa 7 dos títulos recentes"]},
+{n:"Bruno Henrique",a:["bruno henrique"],nat:"Brasil",pos:"Atacante",dec:2010,cl:["Santos","Flamengo"],c:["Atacante decisivo do Flamengo","Dois gols na final da Libertadores de 2019"]},
+{n:"Weverton",a:["weverton"],nat:"Brasil",pos:"Goleiro",dec:2010,cl:["Atlético-PR","Palmeiras"],c:["Goleiro ídolo do Palmeiras","Ouro olímpico em 2016"]},
+{n:"Cássio",a:["cassio"],nat:"Brasil",pos:"Goleiro",dec:2010,cl:["Corinthians"],c:["Herói do título mundial do Corinthians em 2012","Ídolo absoluto corintiano"]},
+{n:"Fábio",a:["fabio goleiro"],nat:"Brasil",pos:"Goleiro",dec:2000,cl:["Cruzeiro","Fluminense"],c:["Goleiro recordista de jogos","Longevidade impressionante"]},
+{n:"Rogério Ceni",a:["rogerio ceni"],nat:"Brasil",pos:"Goleiro",dec:1990,cl:["São Paulo"],c:["Goleiro artilheiro recordista","Ídolo máximo do São Paulo"]},
+{n:"Marcos",a:["marcos goleiro"],nat:"Brasil",pos:"Goleiro",dec:1990,cl:["Palmeiras"],c:["Goleiro do penta de 2002","Ídolo eterno do Palmeiras"]},
+{n:"Emerson",a:["emerson volante"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Bayer Leverkusen","Roma","Juventus"],c:["Volante 'Puskás' da seleção","Capitão de carreira na Itália"]},
+{n:"Zé Roberto",a:["ze roberto"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Bayern de Munique","Palmeiras"],c:["Meia-esquerda de longa carreira","Longevidade no Bayern e Palmeiras"]},
+{n:"Denílson",a:["denilson"],nat:"Brasil",pos:"Ponta",dec:1990,cl:["São Paulo","Betis"],c:["Ponta driblador da seleção","Transferência recordista em 1998"]},
+{n:"Viola",a:["viola"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Corinthians"],c:["Atacante festeiro do tetra de 1994","Comemoração com a língua de fora"]},
+{n:"Túlio Maravilha",a:["tulio","tulio maravilha"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Botafogo"],c:["Artilheiro do título brasileiro do Botafogo de 1995","Buscou os mil gols como Pelé"]},
+{n:"Sonny Anderson",a:["sonny anderson"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Monaco","Barcelona","Lyon"],c:["Centroavante artilheiro na França","Ídolo do Lyon"]},
+{n:"Giovane Élber",a:["elber","giovane elber"],nat:"Brasil",pos:"Atacante",dec:1990,cl:["Stuttgart","Bayern de Munique"],c:["Artilheiro brasileiro na Alemanha","Ídolo do Bayern de Munique"]},
+{n:"Aílton",a:["ailton"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Werder Bremen"],c:["O 'Kugelblitz' artilheiro alemão","Goleador do Werder Bremen"]},
+{n:"Marcelinho Carioca",a:["marcelinho carioca"],nat:"Brasil",pos:"Meia",dec:1990,cl:["Corinthians"],c:["O 'Pé de Anjo' das faltas","Ídolo do Corinthians"]},
+{n:"Diego Tardelli",a:["tardelli"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Atlético-MG"],c:["Atacante ídolo do Atlético-MG","Goleador de clássicos"]},
+{n:"Ricardo Oliveira",a:["ricardo oliveira"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Santos","Betis"],c:["Centroavante artilheiro","Goleador no Santos e na Espanha"]},
+{n:"Luís Fabiano",a:["luis fabiano","luisfabiano"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["São Paulo","Sevilla"],c:["O 'Fabuloso' artilheiro","Goleador na seleção e no Sevilla"]},
+{n:"Vágner Love",a:["vagner love"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["CSKA Moscou","Flamengo"],c:["Artilheiro ídolo do CSKA","Goleador no futebol russo"]},
+{n:"Jô",a:["jo atacante"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Corinthians","CSKA Moscou"],c:["Centroavante alto e técnico","Revelado pelo Corinthians"]},
+{n:"Nilmar",a:["nilmar"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Internacional","Villarreal"],c:["Atacante driblador","Goleador no Villarreal"]},
+{n:"Fred",a:["fred fluminense"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Fluminense","Lyon"],c:["Artilheiro ídolo do Fluminense","Goleador da Copa das Confederações de 2013"]},
+{n:"Diego Souza",a:["diego souza"],nat:"Brasil",pos:"Meia",dec:2000,cl:["Sport","Botafogo"],c:["Meia-atacante goleador","Carreira longa em vários grandes"]},
+{n:"Paulinho",a:["paulinho volante"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Corinthians","Tottenham","Barcelona"],c:["Volante goleador da seleção","Campeão pelo Corinthians e Barça"]},
+{n:"Renato Augusto",a:["renato augusto"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Flamengo","Corinthians"],c:["Meia criativo da seleção","Ídolo no Corinthians"]},
+{n:"Elias",a:["elias volante"],nat:"Brasil",pos:"Meia",dec:2000,cl:["Corinthians","Atlético-MG"],c:["Volante da seleção","Ídolo corintiano"]},
+{n:"Ralf",a:["ralf"],nat:"Brasil",pos:"Meia",dec:2010,cl:["Corinthians"],c:["Volante do título mundial do Corinthians de 2012","Marcação incansável"]},
+{n:"Léo Moura",a:["leo moura"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Flamengo"],c:["Lateral-direito ídolo do Flamengo","Mais de uma década no clube"]},
+{n:"Filipe Luís",a:["filipe luis"],nat:"Brasil",pos:"Lateral",dec:2000,cl:["Atlético de Madrid","Chelsea","Flamengo"],c:["Lateral-esquerdo campeão europeu","Ídolo no Atlético e no Flamengo"]},
+{n:"Alex Sandro",a:["alex sandro"],nat:"Brasil",pos:"Lateral",dec:2010,cl:["Porto","Juventus"],c:["Lateral-esquerdo multicampeão na Itália","Defensor da seleção"]},
+{n:"Danilo",a:["danilo lateral"],nat:"Brasil",pos:"Lateral",dec:2010,cl:["Santos","Real Madrid","Juventus"],c:["Lateral e capitão da seleção","Campeão da Champions"]},
+{n:"Miranda",a:["miranda zagueiro"],nat:"Brasil",pos:"Zagueiro",dec:2010,cl:["São Paulo","Atlético de Madrid","Inter de Milão"],c:["Zagueiro capitão da seleção","Ídolo no Atlético de Madrid"]},
+{n:"Marquinhos",a:["marquinhos psg"],nat:"Brasil",pos:"Zagueiro",dec:2010,cl:["Roma","PSG"],c:["Capitão zagueiro do PSG","Pilar da seleção atual"]},
+{n:"Estêvão",a:["estevao","estevao willian"],nat:"Brasil",pos:"Ponta",dec:2020,cl:["Palmeiras","Chelsea"],c:["Joia revelada pelo Palmeiras","Contratado pelo Chelsea muito jovem"]},
+{n:"Vitor Roque",a:["vitor roque","vitinho roque"],nat:"Brasil",pos:"Atacante",dec:2020,cl:["Athletico","Barcelona"],c:["Centroavante jovem revelação","Negociado com o Barcelona"]},
+{n:"André",a:["andre volante"],nat:"Brasil",pos:"Meia",dec:2020,cl:["Fluminense"],c:["Volante da campanha da Libertadores do Fluminense","Revelação do meio-campo"]},
+{n:"John Kennedy",a:["john kennedy"],nat:"Brasil",pos:"Atacante",dec:2020,cl:["Fluminense"],c:["Gol do título da Libertadores do Fluminense em 2023","Revelação tricolor"]},
+{n:"Washington",a:["washington coracao"],nat:"Brasil",pos:"Atacante",dec:2000,cl:["Athletico","Fluminense"],c:["O 'Coração Valente', artilheiro","Goleador do Brasileirão de 2004"]},
+{n:"Dodô",a:["dodo lateral"],nat:"Brasil",pos:"Lateral",dec:2010,cl:["Coritiba","Fiorentina"],c:["Lateral-direito ídolo da Fiorentina","Defensor veloz"]},
+{n:"Wendell",a:["wendell"],nat:"Brasil",pos:"Lateral",dec:2010,cl:["Palmeiras","Bayer Leverkusen","Porto"],c:["Lateral-esquerdo campeão alemão","Defensor regular na Europa"]},
+{n:"Igor Jesus",a:["igor jesus"],nat:"Brasil",pos:"Atacante",dec:2020,cl:["Botafogo"],c:["Atacante da seleção atual","Revelação ofensiva"]},
+{n:"Savinho",a:["savinho","savio moreira"],nat:"Brasil",pos:"Ponta",dec:2020,cl:["Atlético-MG","Manchester City"],c:["Ponta driblador da seleção","Contratado pelo Manchester City"]},
+{n:"Wesley França",a:["wesley franca"],nat:"Brasil",pos:"Lateral",dec:2020,cl:["Flamengo"],c:["Lateral-direito revelado pelo Flamengo","Jovem da seleção"]}
+];
+
+// Chamarizes: nomes reais que podem ser chutados mas NUNCA são a resposta.
+const DECOYS=["Cláudio Caçapa","Émerson Sheik","Alex Teixeira","Lucas Moura","Malcom","Éverton Cebolinha","Léo Ortiz","Pedro Raul","Yuri Alberto","Rony","Dudu","Raphael Veiga","Gustavo Scarpa","Giorgian De Arrascaeta","Nenê","Diego Costa","Hernanes","Ramires","Sandro","Lucas Leiva","Anderson","Kléberson","Gilberto Melo","Doni","Gomes","Heurelho Gomes","Kléber","Souza","Fred Guarense","Wellington Nem","Bernard","Wendel","Talisca","Pablo Aimar","Javier Saviola","Esteban Cambiasso","Maxi Rodríguez","Gonzalo Higuaín","Ezequiel Lavezzi","Lautaro Martínez","Paulo Dybala","Giovani Lo Celso","Lucas Biglia","Fernando Gago","Marcos Rojo","Nicolás Otamendi","Walter Samuel","Roberto Ayala","Juan Sebastián Verón","Ariel Ortega","Claudio Caniggia","Oscar Ruggeri","Sergio Goycochea","Michael Owen","Paul Scholes","Rio Ferdinand","John Terry","Ashley Cole","Sol Campbell","Jamie Carragher","Gary Neville","Phil Neville","Teddy Sheringham","Robbie Fowler","Emile Heskey","Joe Cole","Theo Walcott","Aaron Ramsey","Jack Wilshere","Daniel Sturridge","Raheem Sterling","Jadon Sancho","Marcus Rashford","Phil Foden","Jack Grealish","Mason Mount","Declan Rice","Jude Bellingham","Cesc Fàbregas","Santi Cazorla","Juan Mata","David de Gea","Pepe Reina","Pau Gasol","Marc Bartra","Jordi Alba","Jordi Cruyff","Michael Laudrup","Brian Laudrup","Peter Schmeichel","Christian Eriksen","Nicklas Bendtner","Daniel Agger","Simon Kjær","Kasper Schmeichel","Freddie Ljungberg","Olof Mellberg","Andreas Granqvist","Emil Forsberg","Antonio Cassano","Mario Balotelli","Marco Materazzi","Gennaro Gattuso","Daniele De Rossi","Giorgio Chiellini","Leonardo Bonucci","Marco Verratti","Lorenzo Insigne","Ciro Immobile","Federico Chiesa","Gianluca Zambrotta","Mauro Camoranesi","Angelo Di Livio","Demetrio Albertini","Dino Baggio","Salvatore Schillaci","Toto Schillaci","Claude Makélélé","Emmanuel Petit","Youri Djorkaeff","Christophe Dugarry","Bixente Lizarazu","Lilian Thuram","Sylvain Wiltord","Nicolas Anelka","Florent Malouda","Franck Ribéry","Olivier Giroud","Paul Pogba","N'Golo Kanté","Hugo Lloris","Raphaël Varane","Blaise Matuidi","Moussa Sissoko","Ousmane Dembélé","Mesut Özil","Mario Götze","André Schürrle","Sami Khedira","Mats Hummels","Jérôme Boateng","Marco Reus","Lukas Podolski","Per Mertesacker","Dietmar Hamann","Mehmet Scholl","Oliver Bierhoff","Stefan Effenberg","Wesley Schneijder","Rafael van der Vaart","Mark van Bommel","Giovanni van Bronckhorst","Phillip Cocu","Jaap Stam","Pierre van Hooijdonk","Roy Makaay","Memphis Depay","Georginio Wijnaldum","Frenkie de Jong","Matthijs de Ligt","Nigel de Jong","John Heitinga","Joris Mathijsen","Nani","Ricardo Quaresma","João Moutinho","Bernardo Silva","Rúben Dias","João Félix","Diogo Jota","Hélder Postiga","Simão Sabrosa","Ricardo Carvalho","Fernando Couto","Vítor Baía","Fernando Morientes","Joaquín","Vicente","Marcos Senna","Álvaro Morata","Koke","Saúl Ñíguez","Thiago Alcântara","Isco","Marco Asensio","Dani Carvajal","Nacho Fernández","Emmanuel Adebayor","Kolo Touré","Frédéric Kanouté","El Hadji Diouf","Salomon Kalou","Gervinho","Wilfried Bony","Pierre-Emerick Aubameyang","Asamoah Gyan","Sulley Muntari","John Obi Mikel","Vincent Enyeama","Obafemi Martins","Taribo West","Kalidou Koulibaly","Achraf Hakimi","Hakim Ziyech","Yassine Bounou","Naby Keïta","Thomas Partey","Victor Osimhen","Marcelo Salas","Gary Medel","Claudio Bravo","Radamel Falcao","Juan Cuadrado","David Ospina","Mario Yepes","Freddy Rincón","Faustino Asprilla","Carlos Bacca","Teófilo Gutiérrez","Luis Díaz","Edwin Cardona","Jackson Martínez","Ronald Koeman","Christian Cueva","Jefferson Farfán","Paolo Guerrero","Claudio Pizarro","Nolberto Solano","Juan Arango","Salomón Rondón","Tomás Rincón","José Luis Chilavert","Óscar Córdoba","Sebastián Abreu","René Higuita","Walter Zenga","Angelo Peruzzi","Francesco Toldo","Jens Lehmann","Brad Friedel","Shay Given"];
+
+// ── DATE SEED ──
+const EPOCH=new Date("2025-01-01");
+function dayIndex(){const d=new Date();d.setHours(0,0,0,0);return Math.floor((d-EPOCH)/86400000);}
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+const MAX_TRIES=6;
+
+// Clue order: (start: era+nat shown) → pos → club1 → club2/fact → vague
+function buildClues(p){
+  const list=[
+    {label:"Época",val:decadeLabel(p.dec)},
+    {label:"Nacionalidade",val:p.nat},
+    {label:"Posição",val:p.pos},
+    {label:"Jogou no(a)",val:p.cl[0]},
+  ];
+  // 5th clue: a second club if available, otherwise the first career fact
+  const secondClub=p.cl[1]?p.cl[1]:null;
+  list.push(secondClub?{label:"Também jogou no(a)",val:secondClub}:{label:"Pista",val:p.c[0]});
+  // 6th (last) clue: deliberately VAGUE — gives context without revealing the name.
+  list.push({label:"Pista vaga",val:vagueHint(p)});
+  return list;
+}
+// A soft, non-revealing final nudge derived from public data.
+function vagueHint(p){
+  const n=p.cl.length;
+  const ofProfile={
+    "Goleiro":"Defendeu o gol da sua seleção",
+    "Zagueiro":"Atuou na defesa, com folha de serviços marcante",
+    "Lateral":"Jogou pelas laterais do campo",
+    "Ponta":"Brilhou aberto pelos lados do ataque",
+    "Meia":"Foi cérebro do meio-campo",
+    "Meia-atacante":"Transitou entre o meio e o ataque",
+    "Atacante":"Teve o faro de gol como marca registrada",
+  }[p.pos] || "Deixou sua marca no futebol";
+  // Mix in a light career-length cue without naming anything
+  if(n>=4) return ofProfile+" e rodou por vários clubes na carreira.";
+  if(n>=2) return ofProfile+" e teve passagens marcantes por mais de um clube.";
+  return ofProfile+", com forte identificação com seu clube.";
+}
+function decadeLabel(d){return "Década de "+d;}
+
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g,"").trim();}
+
+let mode="daily", target, clues, tries, revealed, over, won, history, infStreak=0, usedBonus=false, theme="todos";
+
+const THEME_POOLS={
+  todos: PLAYERS,
+  brasil: PLAYERS.filter(p=>p.nat==="Brasil"),
+  lendas: PLAYERS.filter(p=>p.dec<=1980),
+  atual: PLAYERS.filter(p=>p.dec>=2010),
+  goleiros: PLAYERS.filter(p=>p.pos==="Goleiro"),
+};
+const BR_POOL=THEME_POOLS.brasil; // kept for autocomplete compatibility
+function currentPool(){return THEME_POOLS[theme]||PLAYERS;}
+function pick(){
+  if(mode==="daily") return PLAYERS[dayIndex()%PLAYERS.length];
+  const pool=currentPool();
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function start(){
+  target=pick(); clues=buildClues(target);
+  tries=0; revealed=2; over=false; won=false; history=[]; usedBonus=false; // start with Época + Nacionalidade shown
+  document.getElementById("case-num").textContent="#"+String(mode==="daily"?dayIndex():(infStreak+1)).padStart(3,"0");
+  document.getElementById("case-label").textContent=mode==="daily"?"CASO Nº":"RODADA";
+  document.getElementById("guess-area").style.display="block";
+  document.getElementById("result").style.display="none";
+  document.getElementById("guess").value="";
+  document.getElementById("bonus-area").style.display="none";
+  document.getElementById("bonus-note").style.display="none";
+  document.getElementById("bonus-btn").style.display="inline-block";
+  const badge=document.getElementById("badge");if(badge)badge.classList.remove("solved");
+  renderClues(); renderAttempts(); updateTries();
+  if(mode==="daily"){
+    try{const s=JSON.parse(localStorage.getItem("craque_"+todayKey())||"null");
+      if(s){history=s.history;won=s.won;over=true;revealed=clues.length;renderClues();renderAttempts();finish._restoring=true;finish();finish._restoring=false;}
+    }catch(e){}
+  }
+}
+
+function renderClues(){
+  const box=document.getElementById("clues");box.innerHTML="";
+  clues.forEach((c,i)=>{
+    const open=i<revealed||over;
+    const div=document.createElement("div");
+    div.className="clue "+(open?"revealed":"locked");
+    div.innerHTML='<div class="n">'+(i+1)+'</div><div><div class="label">'+c.label+'</div><div class="val">'+(open?c.val:"█████████")+'</div></div>';
+    box.appendChild(div);
+  });
+}
+function proxText(p){
+  // Build a readable phrase grouping matches and mismatches.
+  const items=[["nacionalidade",p.nat],["posição",p.pos],["época",p.dec]];
+  const same=items.filter(x=>x[1]).map(x=>x[0]);
+  const diff=items.filter(x=>!x[1]).map(x=>x[0]);
+  const parts=[];
+  if(same.length) parts.push('<span class="px-same">✓ mesma '+joinList(same)+'</span>');
+  if(diff.length) parts.push('<span class="px-diff">✗ '+joinList(diff)+' diferente'+(diff.length>1?'s':'')+'</span>');
+  return parts.join('<span class="px-sep"> · </span>');
+}
+function joinList(arr){
+  if(arr.length===1) return arr[0];
+  if(arr.length===2) return arr[0]+" e "+arr[1];
+  return arr.slice(0,-1).join(", ")+" e "+arr[arr.length-1];
+}
+function renderAttempts(){
+  const box=document.getElementById("attempts");box.innerHTML="";
+  let anyProx=false;
+  history.forEach(h=>{
+    if(h.prox)anyProx=true;
+    const div=document.createElement("div");
+    div.className="attempt "+(h.correct?"right":"wrong");
+    let line='<div class="att-top"><span class="mark">'+(h.correct?"✅":"❌")+'</span><span class="gname">'+h.guess+'</span></div>';
+    if(h.prox){
+      line+='<div class="att-prox">'+proxText(h.prox)+'</div>';
+    }
+    div.innerHTML=line;
+    box.appendChild(div);
+  });
+  const legend=document.getElementById("prox-legend");
+  if(legend)legend.style.display=anyProx?"block":"none";
+}
+function updateTries(){
+  document.getElementById("tries-left").textContent=over?"":((MAX_TRIES-tries)+" tentativa(s) restante(s)");
+  // Bonus hint available only on the very last try, if not already used
+  const onLastTry=!over && tries===MAX_TRIES-1;
+  const ba=document.getElementById("bonus-area");
+  if(ba)ba.style.display=(onLastTry && !usedBonus)?"block":"none";
+}
+function useBonusHint(){
+  if(over||usedBonus)return;
+  usedBonus=true;
+  const letter=target.n.charAt(0).toUpperCase();
+  const note=document.getElementById("bonus-note");
+  note.innerHTML='O nome começa com <b>'+letter+'</b>';
+  note.style.display="block";
+  document.getElementById("bonus-btn").style.display="none";
+  playSound("reveal");vibrate(40);
+}
+
+function findPlayer(nq){
+  return PLAYERS.find(p=>norm(p.n)===nq||p.a.some(a=>norm(a)===nq))||null;
+}
+function proximity(guessP){
+  // Compare guessed player to target: nationality, position, decade
+  if(!guessP) return null;
+  return {
+    nat: guessP.nat===target.nat,
+    pos: guessP.pos===target.pos,
+    dec: guessP.dec===target.dec,
+  };
+}
+
+function submitGuess(raw){
+  if(over)return;
+  const g=norm(raw); if(!g)return;
+  const all=[norm(target.n),...target.a.map(norm)];
+  const correct=all.includes(g);
+  const guessP=findPlayer(g);
+  // Proximity is only revealed from the 3rd wrong guess onward (after this guess,
+  // tries will be >=3). Computed only for wrong guesses of a recognized player.
+  const willBeTry=tries+1;
+  const prox=(!correct && guessP && willBeTry>=3) ? proximity(guessP) : null;
+  history.push({guess:raw.trim(),correct,prox});
+  tries++;
+  if(correct){won=true;over=true;revealed=clues.length;}
+  else if(tries>=MAX_TRIES){over=true;revealed=clues.length;}
+  else{revealed=Math.min(clues.length,tries+2);} // Época+Nacionalidade shown from start; each error reveals one more
+  // Feedback: sound + haptics
+  if(!over){
+    if(correct){} // handled in finish
+    else{playSound("wrong");vibrate(80);setTimeout(()=>playSound("reveal"),150);}
+  }
+  renderClues();renderAttempts();updateTries();
+  document.getElementById("guess").value="";hideSuggest();
+  if(over){if(mode==="daily")persist();finish();}
+}
+function persist(){try{localStorage.setItem("craque_"+todayKey(),JSON.stringify({history,won,revealed}));}catch(e){}}
+
+function finish(){
+  document.getElementById("guess-area").style.display="none";
+  document.getElementById("bonus-area").style.display="none";
+  const r=document.getElementById("result");r.style.display="block";
+  // Smooth entrance (skip when restoring a saved game silently)
+  if(!finish._restoring){r.classList.remove("show-anim");void r.offsetWidth;r.classList.add("show-anim");}
+  const v=document.getElementById("verdict");
+  v.textContent=won?"Craque identificado!":"Caso arquivado";
+  v.className="verdict "+(won?"win":"lose");
+  const badge=document.getElementById("badge");
+  if(badge)badge.classList.toggle("solved",won);
+  document.getElementById("answer").innerHTML="O craque era <b>"+target.n+"</b>"
+    +'<div class="answer-facts">'+target.nat+" · "+target.pos+" · "+decadeLabel(target.dec)
+    +'<br>'+target.cl.join(" · ")
+    +'<br><span>'+target.c[0]+(target.c[1]?(" · "+target.c[1]):"")+'</span></div>';
+  document.getElementById("grid").textContent=gridStr();
+  document.getElementById("again").style.display=(mode==="infinite")?"inline-block":"none";
+  // Feedback only when finishing fresh (not when restoring a saved finished game)
+  if(!finish._restoring){
+    if(won){playSound("win");vibrate([40,60,40,60,160]);launchConfetti();}
+    else{playSound("lose");vibrate(200);}
+  }
+  if(mode==="daily"){recordStats(won,history.length);tickCountdown();document.getElementById("next-in").style.display="block";}
+  else{document.getElementById("next-in").style.display="none";if(won)infStreak++;else infStreak=0;}
+  checkAchievements();
+}
+function gridStr(){const c=[];for(let i=0;i<MAX_TRIES;i++){c.push(i<history.length?(history[i].correct?"🟩":"⬛"):"⬜");}return c.join("");}
+function launchConfetti(){
+  const box=document.getElementById("confetti");
+  if(!box)return;
+  box.innerHTML="";
+  const colors=["#e8c547","#3fb56a","#e23b5a","#7f77dd","#eceaf5"];
+  const n=28;
+  for(let i=0;i<n;i++){
+    const p=document.createElement("div");
+    p.className="confetti-piece";
+    p.style.left=(Math.random()*100)+"%";
+    p.style.background=colors[i%colors.length];
+    p.style.borderRadius=Math.random()>0.5?"50%":"1px";
+    const dur=(0.9+Math.random()*0.8).toFixed(2);
+    const delay=(Math.random()*0.25).toFixed(2);
+    p.style.animation="confettiFall "+dur+"s ease-in "+delay+"s forwards";
+    box.appendChild(p);
+  }
+  setTimeout(()=>{if(box)box.innerHTML="";},2200);
+}
+function buildShare(){
+  const score=won?(history.length+"/"+MAX_TRIES):("X/"+MAX_TRIES);
+  const tag=mode==="daily"?("#"+dayIndex()):("Infinito"+(theme!=="todos"?" · "+themeLabel():""));
+  return "⚽ Craque do Dia "+tag+" "+score+"\n"+gridStr()+"\n\ncraquedodia.futzone.com.br";
+}
+
+// ── STATS ──
+function getStats(){try{return JSON.parse(localStorage.getItem("craque_stats")||"null")||{played:0,wins:0,streak:0,best:0,dist:[0,0,0,0,0,0],lastDay:null};}catch(e){return{played:0,wins:0,streak:0,best:0,dist:[0,0,0,0,0,0],lastDay:null};}}
+function recordStats(w,nTries){
+  const s=getStats();
+  if(s.lastDay===dayIndex())return; // count once per day
+  // If the player missed one or more days since last play, the daily streak is broken.
+  if(s.lastDay!==null && s.lastDay!==dayIndex()-1){ s.streak=0; }
+  s.lastDay=dayIndex();s.played++;
+  if(w){s.wins++;s.streak++;if(s.streak>s.best)s.best=s.streak;s.dist[nTries-1]++;}
+  else{s.streak=0;}
+  try{localStorage.setItem("craque_stats",JSON.stringify(s));}catch(e){}
+  renderStreak();
+}
+// A streak shown as "alive" only if last play was today or yesterday.
+function liveStreak(s){
+  if(s.lastDay===dayIndex()||s.lastDay===dayIndex()-1) return s.streak;
+  return 0; // missed day(s): streak no longer counts as current
+}
+function renderStreak(){
+  const el=document.getElementById("streak-badge");
+  if(!el)return;
+  const s=getStats();
+  const cur=liveStreak(s);
+  // Show only when current streak is 2+
+  if(cur>=2){
+    el.innerHTML='<span class="flame">🔥</span><span class="sk-cur">'+cur+'</span>'
+      +'<span class="sk-sep">dias seguidos</span>'
+      +(s.best>cur?'<span class="sk-sep">·</span><span class="sk-best">melhor '+s.best+'</span>':'');
+    el.style.display="flex";
+  }else{
+    el.style.display="none";
+  }
+}
+function showStats(){
+  const s=getStats();
+  const pct=s.played?Math.round(s.wins/s.played*100):0;
+  let dist="";
+  for(let i=0;i<MAX_TRIES;i++){const max=Math.max(1,...s.dist);const w=Math.round(s.dist[i]/max*100);
+    dist+='<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px;"><span style="width:14px;color:var(--muted);">'+(i+1)+'</span><div style="background:var(--green);height:16px;width:'+Math.max(6,w)+'%;border-radius:2px;text-align:right;padding-right:5px;color:#04140b;font-weight:600;">'+s.dist[i]+'</div></div>';}
+  const unlocked=getUnlocked();
+  let achHtml='<p style="margin:14px 0 6px;color:var(--ink);">Conquistas ('+unlocked.length+'/'+ACHIEVEMENTS.length+')</p><div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  ACHIEVEMENTS.forEach(a=>{const on=unlocked.includes(a.id);
+    achHtml+='<div title="'+a.desc+'" style="flex:0 0 auto;text-align:center;width:62px;opacity:'+(on?"1":"0.3")+';"><div style="font-size:24px;">'+a.icon+'</div><div style="font-size:8px;color:var(--muted);letter-spacing:.5px;margin-top:2px;line-height:1.2;">'+a.name+'</div></div>';});
+  achHtml+='</div>';
+  openModal('<button class="close" onclick="closeModal()">×</button><h2>📊 Estatísticas</h2>'
+    +'<div class="statbar" style="margin-bottom:16px;"><div class="s"><div class="v">'+s.played+'</div><div class="l">Jogos</div></div><div class="s"><div class="v">'+pct+'%</div><div class="l">Vitórias</div></div><div class="s"><div class="v">'+s.streak+'</div><div class="l">Sequência</div></div><div class="s"><div class="v">'+s.best+'</div><div class="l">Recorde</div></div></div>'
+    +'<p style="margin-bottom:6px;color:var(--ink);">Distribuição de tentativas</p>'+dist+achHtml);
+}
+
+// ── ACHIEVEMENTS ──
+const ACHIEVEMENTS=[
+  {id:"first_win",icon:"🎯",name:"Primeiro acerto",desc:"Acerte seu primeiro craque"},
+  {id:"one_try",icon:"🧠",name:"De primeira",desc:"Acerte sem nenhuma pista extra (1ª tentativa)"},
+  {id:"two_try",icon:"⚡",name:"Rápido",desc:"Acerte em até 2 tentativas"},
+  {id:"streak3",icon:"🔥",name:"Embalado",desc:"3 vitórias seguidas"},
+  {id:"streak7",icon:"🏆",name:"Semana cheia",desc:"7 vitórias seguidas"},
+  {id:"played10",icon:"📅",name:"Veterano",desc:"Jogue 10 desafios"},
+  {id:"scout",icon:"🕵️",name:"Olheiro",desc:"Use a proximidade e acerte depois do 3º erro"},
+];
+function getUnlocked(){try{return JSON.parse(localStorage.getItem("craque_ach")||"[]");}catch(e){return [];}}
+function unlock(id){const u=getUnlocked();if(!u.includes(id)){u.push(id);try{localStorage.setItem("craque_ach",JSON.stringify(u));}catch(e){}
+  const a=ACHIEVEMENTS.find(x=>x.id===id);if(a){showToast(a.icon+" Conquista: "+a.name);}}}
+function checkAchievements(){
+  const s=getStats();
+  if(won){
+    unlock("first_win"); // winning always counts for the basic one
+    if(!usedBonus){
+      // "skill" achievements require no bonus hint
+      if(history.length===1)unlock("one_try");
+      if(history.length<=2)unlock("two_try");
+      if(history.length>=4)unlock("scout"); // won after proximity was active
+    }
+  }
+  if(s.streak>=3)unlock("streak3");
+  if(s.streak>=7)unlock("streak7");
+  if(s.played>=10)unlock("played10");
+}
+function showHelp(){
+  openModal('<button class="close" onclick="closeModal()">×</button><h2>⚽ Como jogar</h2>'
+    +'<p>Um <b style="color:var(--ink)">craque misterioso</b> é revelado a cada dia. Seu objetivo: descobrir quem é.</p>'
+    +'<ol><li>Você começa sabendo a <b style="color:var(--ink)">época</b> e a <b style="color:var(--ink)">nacionalidade</b> do craque.</li>'
+    +'<li>A cada palpite errado, uma nova pista é liberada, nesta ordem: posição, clube, e por fim pistas sobre a carreira.</li>'
+    +'<li>Você tem <b style="color:var(--ink)">6 tentativas</b>.</li>'
+    +'<li>Quanto menos tentativas usar, melhor seu resultado!</li></ol>'
+    +'<p>A partir do 3º erro, cada palpite mostra em texto o que ele tem <b style="color:var(--ink)">em comum</b> e o que é <b style="color:var(--ink)">diferente</b> do craque (nacionalidade, posição e época).</p>'
+    +'<p>Na <b style="color:var(--ink)">última tentativa</b>, se quiser, você pode usar a <b style="color:var(--gold)">💡 dica bônus</b> (revela a 1ª letra do nome) — mas ela não vale para as conquistas mais difíceis.</p>'
+    +'<p>Digite o nome e use a lista de sugestões. Acentos e apelidos (cr7, zizou) são aceitos.</p>'
+    +'<p>No modo <b style="color:var(--ink)">Infinito</b>, escolha um <b style="color:var(--gold)">tema</b> (Brasil, Lendas, Era atual, Goleiros) para jogar partidas sem fim só com aquele grupo de craques.</p>'
+    +'<p style="margin-top:10px;font-size:11px;">Use só fatos públicos: nacionalidade, posição, época, clubes e conquistas.</p>');
+}
+function openModal(html){document.getElementById("modal-content").innerHTML=html;document.getElementById("overlay").classList.add("show");}
+function closeModal(){document.getElementById("overlay").classList.remove("show");}
+function closeModalBg(e){if(e.target.id==="overlay")closeModal();}
+
+// ── ONBOARDING (first visit only) ──
+function maybeShowOnboarding(){
+  let seen=false;
+  try{seen=localStorage.getItem("craque_onboarded")==="1";}catch(e){}
+  if(seen)return;
+  showOnboarding();
+}
+function showOnboarding(){
+  openModal('<button class="close" onclick="finishOnboarding()">×</button>'
+    +'<div style="text-align:center;margin-bottom:6px;">'
+    +'<div style="font-size:13px;letter-spacing:3px;color:var(--muted);font-family:\'Oswald\',sans-serif;">BEM-VINDO AO</div>'
+    +'<div style="font-family:\'Oswald\',sans-serif;font-size:30px;font-weight:700;">CRAQUE<span style="color:var(--gold)">.</span></div>'
+    +'</div>'
+    +'<div class="onb-steps">'
+    +'<div class="onb-step"><span class="onb-ico">🕵️</span><div><b>Descubra o craque do dia</b><span>Um jogador misterioso por dia. Quem será?</span></div></div>'
+    +'<div class="onb-step"><span class="onb-ico">🔍</span><div><b>Cada erro libera uma pista</b><span>Começa com época e nacionalidade. Errou? Vem posição, clube e mais.</span></div></div>'
+    +'<div class="onb-step"><span class="onb-ico">🎯</span><div><b>6 tentativas</b><span>Quanto menos usar, melhor. A partir do 3º erro, seus palpites viram dicas.</span></div></div>'
+    +'<div class="onb-step"><span class="onb-ico">🔥</span><div><b>Volte todo dia</b><span>Mantenha sua sequência e dispute com os amigos.</span></div></div>'
+    +'</div>'
+    +'<button class="onb-cta" onclick="finishOnboarding()">Começar a jogar ⚽</button>');
+}
+function finishOnboarding(){
+  try{localStorage.setItem("craque_onboarded","1");}catch(e){}
+  closeModal();
+}
+
+function switchMode(m){
+  if(m===mode && m==="daily")return;
+  mode=m;
+  document.getElementById("tab-daily").classList.toggle("active",m==="daily");
+  document.getElementById("tab-infinite").classList.toggle("active",m==="infinite");
+  // Theme bar only shows in Infinite mode
+  document.getElementById("theme-bar").style.display=(m==="infinite")?"flex":"none";
+  if(m==="infinite")infStreak=0;
+  start();
+}
+function setTheme(t){
+  if(t===theme)return;
+  theme=t;
+  document.querySelectorAll(".theme-chip").forEach(c=>c.classList.toggle("active",c.dataset.theme===t));
+  infStreak=0;
+  start();
+}
+function themeLabel(){
+  return {todos:"Todos",brasil:"🇧🇷 Brasil",lendas:"⭐ Lendas",atual:"⚡ Era atual",goleiros:"🧤 Goleiros"}[theme]||"Todos";
+}
+
+function tickCountdown(){
+  const el=document.getElementById("next-in");
+  function upd(){const now=new Date();const t=new Date(now);t.setHours(24,0,0,0);const d=t-now;
+    const h=Math.floor(d/3600000),m=Math.floor(d%3600000/60000),s=Math.floor(d%60000/1000);
+    el.innerHTML="Próximo craque em <b>"+String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+"</b>";}
+  upd();clearInterval(window.__cd);window.__cd=setInterval(upd,1000);
+}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800);}
+
+// ── SOUND + HAPTICS ──
+let soundOn=true, vibrateOn=true;
+try{soundOn=localStorage.getItem("craque_sound")!=="0";vibrateOn=localStorage.getItem("craque_vibrate")!=="0";}catch(e){}
+let actx=null;
+function beep(freq,dur,type,vol,delay){
+  if(!soundOn)return;
+  try{
+    if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.type=type||"sine";o.frequency.value=freq;
+    const t0=actx.currentTime+(delay||0);
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol||0.1,t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g);g.connect(actx.destination);
+    o.start(t0);o.stop(t0+dur);
+  }catch(e){}
+}
+function playSound(kind){
+  if(kind==="key")beep(330,0.05,"square",0.05);
+  else if(kind==="wrong"){beep(180,0.18,"sawtooth",0.1);}
+  else if(kind==="reveal"){beep(520,0.1,"sine",0.08);}
+  else if(kind==="win"){[523,659,784,1047].forEach((f,i)=>beep(f,0.3,"triangle",0.16,i*0.1));}
+  else if(kind==="lose"){beep(200,0.4,"sawtooth",0.1);beep(150,0.5,"sawtooth",0.08,0.15);}
+}
+function vibrate(p){if(!vibrateOn)return;try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+function toggleSound(){soundOn=!soundOn;try{localStorage.setItem("craque_sound",soundOn?"1":"0");}catch(e){}updateAudioBtns();if(soundOn)playSound("reveal");}
+function toggleVibrate(){if(!("vibrate" in navigator)){showToast("Vibração não suportada");return;}vibrateOn=!vibrateOn;try{localStorage.setItem("craque_vibrate",vibrateOn?"1":"0");}catch(e){}updateAudioBtns();if(vibrateOn)vibrate(40);}
+function updateAudioBtns(){
+  const sb=document.getElementById("btn-sound"),vb=document.getElementById("btn-vibrate");
+  if(sb)sb.textContent=soundOn?"🔊":"🔇";
+  if(vb)vb.style.opacity=vibrateOn?"1":"0.4";
+}
+
+// autocomplete
+const input=document.getElementById("guess"),sug=document.getElementById("suggest");
+let activeSug=-1;
+function showSuggest(q){const nq=norm(q);if(!nq){hideSuggest();return;}
+  // In a specific theme (Brasil, Goleiros...), keep suggestions pure to that pool.
+  // Otherwise (daily / infinite-todos), mix in decoy names so the bank feels larger.
+  const themed = mode==="infinite" && theme!=="todos";
+  const pool=themed?currentPool():PLAYERS;
+  let m=pool.filter(p=>norm(p.n).includes(nq)||p.a.some(a=>norm(a).includes(nq)))
+            .map(p=>p.n);
+  if(!themed){
+    const dm=DECOYS.filter(d=>norm(d).includes(nq));
+    m=m.concat(dm);
+  }
+  // de-dup by normalized name, cap at 6
+  const seen={};const out=[];
+  for(const name of m){const k=norm(name);if(seen[k])continue;seen[k]=1;out.push(name);if(out.length>=6)break;}
+  if(!out.length){hideSuggest();return;}
+  sug.innerHTML=out.map(n=>'<div class="sug" data-name="'+n.replace(/"/g,'&quot;')+'">'+n+'</div>').join("");
+  sug.classList.add("show");activeSug=-1;
+  sug.querySelectorAll(".sug").forEach(el=>el.addEventListener("click",()=>{input.value=el.dataset.name;hideSuggest();input.focus();}));
+}
+function hideSuggest(){sug.classList.remove("show");sug.innerHTML="";activeSug=-1;}
+input.addEventListener("input",e=>showSuggest(e.target.value));
+input.addEventListener("keydown",e=>{const items=sug.querySelectorAll(".sug");
+  if(e.key==="ArrowDown"&&items.length){e.preventDefault();activeSug=(activeSug+1)%items.length;items.forEach((it,i)=>it.classList.toggle("active",i===activeSug));}
+  else if(e.key==="ArrowUp"&&items.length){e.preventDefault();activeSug=(activeSug-1+items.length)%items.length;items.forEach((it,i)=>it.classList.toggle("active",i===activeSug));}
+  else if(e.key==="Enter"){if(activeSug>=0&&items[activeSug]){input.value=items[activeSug].dataset.name;hideSuggest();}else submitGuess(input.value);}
+  else if(e.key==="Escape")hideSuggest();
+});
+document.getElementById("go").addEventListener("click",()=>submitGuess(input.value));
+document.getElementById("again").addEventListener("click",()=>start());
+// ── IMAGE SHARE (canvas, dossier style) ──
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function shareImage(){
+  const W=600,H=820;
+  const canvas=document.createElement("canvas");canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext("2d");
+  // bg
+  ctx.fillStyle="#0c0a14";ctx.fillRect(0,0,W,H);
+  // faint grid
+  ctx.strokeStyle="rgba(33,28,51,0.55)";ctx.lineWidth=1;
+  for(let x=0;x<=W;x+=56){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=56){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // border
+  ctx.strokeStyle="#382f54";ctx.lineWidth=2;roundRect(ctx,16,16,W-32,H-32,18);ctx.stroke();
+  ctx.textAlign="center";
+  // header
+  ctx.fillStyle="#6a6590";ctx.font="600 22px Arial";ctx.fillText("D O S S I Ê   D O",W/2,90);
+  ctx.font="bold 60px Arial";
+  ctx.fillStyle="#eceaf5";
+  const t1="CRAQUE";ctx.fillText(t1,W/2-14,150);
+  ctx.fillStyle="#e8c547";
+  const tw=ctx.measureText(t1).width;ctx.fillText(".",W/2-14+tw/2+12,150);
+  // silhouette circle
+  const cx=W/2,cy=250,r=64;
+  const solved=won;
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle=solved?"#1e3a28":"#1c1830";ctx.fill();
+  ctx.lineWidth=4;ctx.strokeStyle=solved?"#3fb56a":"#534ab7";ctx.stroke();
+  // clip + draw avatar
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+  ctx.fillStyle=solved?"#3fb56a":"#4a3f73";
+  ctx.beginPath();ctx.arc(cx,cy-12,26,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx-46,cy+64);ctx.bezierCurveTo(cx-46,cy+30,cx-26,cy+20,cx,cy+20);ctx.bezierCurveTo(cx+26,cy+20,cx+46,cy+30,cx+46,cy+64);ctx.closePath();ctx.fill();
+  ctx.restore();
+  if(!solved){ctx.fillStyle="#e8c547";ctx.font="bold 56px Arial";ctx.fillText("?",cx,cy+20);}
+  // verdict
+  ctx.fillStyle=solved?"#3fb56a":"#e23b5a";ctx.font="bold 34px Arial";
+  ctx.fillText(solved?"CRAQUE IDENTIFICADO!":"CASO ARQUIVADO",W/2,375);
+  // subtitle
+  const tag=mode==="daily"?("Caso #"+dayIndex()):("Modo Infinito"+(theme!=="todos"?" · "+themeLabel():""));
+  const score=won?(history.length+" de "+MAX_TRIES+" tentativas"):("não desvendado");
+  ctx.fillStyle="#8a85a8";ctx.font="20px Arial";ctx.fillText(tag+" · "+score,W/2,408);
+  // attempt rows
+  let y=448;const rowW=300,rowH=22,gap=8,rx=(W-rowW)/2-20;
+  for(let i=0;i<MAX_TRIES;i++){
+    const has=i<history.length;const ok=has&&history[i].correct;
+    ctx.fillStyle=ok?"#1e2820":(has?"#241c2a":"#15121f");
+    roundRect(ctx,rx,y,rowW,rowH,5);ctx.fill();
+    ctx.strokeStyle=ok?"#3fb56a":(has?"#3a2030":"#221c33");ctx.lineWidth=1;
+    roundRect(ctx,rx,y,rowW,rowH,5);ctx.stroke();
+    // status square
+    ctx.fillStyle=ok?"#3fb56a":(has?"#e23b5a":"#2a2440");
+    roundRect(ctx,rx+rowW+10,y,rowH,rowH,5);ctx.fill();
+    // row number
+    ctx.fillStyle="#6a6590";ctx.font="13px Arial";ctx.textAlign="right";
+    ctx.fillText((i+1).toString(),rx-10,y+16);ctx.textAlign="center";
+    y+=rowH+gap;
+  }
+  // stamp
+  ctx.save();ctx.translate(W/2,y+34);ctx.rotate(-0.14);
+  ctx.strokeStyle="#e23b5a";ctx.lineWidth=3;roundRect(ctx,-130,-26,260,52,5);ctx.stroke();
+  ctx.fillStyle="#e23b5a";ctx.font="bold 28px Arial";ctx.fillText("CASO ENCERRADO",0,10);
+  ctx.restore();
+  // footer
+  ctx.fillStyle="#8a85a8";ctx.font="20px Arial";ctx.fillText("craquedodia.futzone.com.br",W/2,H-44);
+
+  canvas.toBlob(blob=>{
+    if(!blob){copy(buildShare());return;}
+    const file=new File([blob],"craque-do-dia.png",{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],text:buildShare()}).catch(()=>downloadBlob(blob));
+    }else{downloadBlob(blob);}
+  },"image/png");
+}
+function downloadBlob(blob){
+  try{const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="craque-do-dia.png";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("Imagem baixada!");}
+  catch(e){copy(buildShare());}
+}
+document.getElementById("share").addEventListener("click",()=>{try{shareImage();}catch(e){const t=buildShare();if(navigator.share){navigator.share({text:t}).catch(()=>copy(t));}else copy(t);}});
+function copy(t){navigator.clipboard.writeText(t).then(()=>showToast("Resultado copiado!"));}
+document.addEventListener("click",e=>{if(!e.target.closest(".guess-row"))hideSuggest();});
+
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){navigator.serviceWorker.register("./sw.js").catch(()=>{});}
+updateAudioBtns();
+renderStreak();
+start();
+maybeShowOnboarding();
+</script>
+</body>
+</html>
